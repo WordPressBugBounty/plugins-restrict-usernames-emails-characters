@@ -1,0 +1,1096 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Restrict Usernames Emails Characters\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-08-08 09:55+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: \n"
+"Language: \n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Loco https://localise.biz/\n"
+"X-Loco-Version: 2.6.11; wp-6.6.1\n"
+"X-Domain: restrict-usernames-emails-characters"
+
+#: restrict-usernames-emails-characters.php:1044
+msgid "%d were updated and %d failed for %d user(s)"
+msgstr ""
+
+#: restrict-usernames-emails-characters.php:1017
+#, php-format
+msgid "%s user were updated for"
+msgid_plural "%s users were updated for"
+msgstr[0] ""
+msgstr[1] ""
+
+#: page-setts.php:826
+msgid "(Don&#39;t forget to take a backup of the database)"
+msgstr ""
+
+#: page-setts.php:430
+msgid ""
+"- Before you activate the &#34;Solved the problem of not being able to "
+"register with certain languages&#34; option, you must test the letters of "
+"the language you have chosen by converting them into a link via this "
+"function rawurlencode(). Example: If we choose, for example, Arabic, we put "
+"some letters in the function like this, for example: rawurlencode(&#39;"
+"اسم&#39;), if it appears in the name this symbol % then you must activate "
+"the &#34;Solved the problem of not being able to register with certain "
+"languages&#34; option."
+msgstr ""
+
+#: page-setts.php:429
+msgid ""
+"- Each member has their nicename (author slug), which is a link. WordPress "
+"takes a copy of the user login when registering a new member and converts it "
+"to a link called user_nicename. The problem is that in some languages, like "
+"Arabic, when the name is converted to a link, it becomes symbols like: "
+"%D8%A7%D8%B3%D9%85 therefore, a problem occurs during registration and "
+"it&#39;s not possible to register a new user. This plugin solves the problem "
+"by encrypting the user_nicename and it will consist of just latin letters "
+"and numbers, With the ability to control how the link to members&#39; posts "
+"appears (author slug) through this option: &#34;Author Slug Structure&#34;"
+msgstr ""
+
+#: page-setts.php:1232
+msgid ""
+"- If you want help about the modification of connection (log in) error "
+"messages contact me by creating a new post with your question on: <a "
+"target=\"_blank\" href=\"http://benaceur-php.com/general-support/\">general-"
+"support</a>"
+msgstr ""
+
+#: page-setts.php:258
+msgid ""
+"<p>1- Option: \"<b>Restrict the following</b>\"</p><p>This option allows us "
+"to block every domain ending by \"gmail.com\" for example or \"com\"</p><p>"
+"For example, if we put it like this:</p><p>gmail.com</p><p>net</p><p>In this "
+"case, any mail that ends with \"gmail.com\" or that with \"net\" will be "
+"blocked.</p><p>&nbsp;</p><p>2- option: \"<b>Restrict everything except the "
+"following (after @)</b>\"</p><p>If we choose this option, we have to put "
+"only what comes after the (@)</p><p>For example:</p><p>gmail.com</p><p>ben."
+"com</p><p>sibwor.org</p><p>In this case, all mail that does not end with "
+"\"gmail.com\" or \"ben.com\" or \"sibwor.org\" will be blocked.</p><p>&nbsp;"
+"</p><p>3- option: \"<b>Restrict everything except the following (after .)</b>"
+"\"</p><p>If we choose this option, we have to put only what comes after the "
+"last dot (.)</p><p>For example:</p><p>com</p><p>org</p><p>In this case, all "
+"mail that does not end with \"com\" or does not end with \"org\" will be "
+"blocked.</p>"
+msgstr ""
+
+#: restrict-usernames-emails-characters.php:529
+#: restrict-usernames-emails-characters.php:1072
+msgid ""
+"<strong>Core Control:</strong> Sorry, This plugin (Restrict Usernames Emails "
+"Characters) requires PHP"
+msgstr ""
+
+#: restrict-usernames-emails-characters.php:526
+msgid ""
+"<strong>Core Control:</strong> Sorry, This plugin (Restrict Usernames Emails "
+"Characters) requires WordPress"
+msgstr ""
+
+#: classes/classe_errors.php:100 classes/classe_errors.php:103
+msgid ""
+"<strong>ERROR</strong>: Do not allow usernames that are email addresses."
+msgstr ""
+
+#: classes/classe_errors.php:52 classes/classe_errors.php:55
+msgid ""
+"<strong>ERROR</strong>: is not allowed to use multi whitespace or whitespace "
+"at the beginning or the end of the username."
+msgstr ""
+
+#: classes/classe_errors.php:79 classes/classe_errors.php:82
+msgid "<strong>ERROR</strong>: It's not allowed to use spaces in username."
+msgstr ""
+
+#: classes/classe_errors.php:93 classes/classe_errors.php:96
+msgid "<strong>ERROR</strong>: No uppercase (A-Z) in username."
+msgstr ""
+
+#: classes/classe_errors.php:27
+msgid "<strong>ERROR</strong>: Please enter a username."
+msgstr ""
+
+#: classes/classe_errors.php:141
+msgid "<strong>ERROR</strong>: Please type your email address."
+msgstr ""
+
+#: classes/classe_errors.php:128 classes/classe_errors.php:131
+msgid ""
+"<strong>ERROR</strong>: The digits must be less than the characters in "
+"username."
+msgstr ""
+
+#: classes/classe_errors.php:147
+msgid "<strong>ERROR</strong>: The email address isn&#8217;t correct."
+msgstr ""
+
+#: classes/classe_errors.php:154
+msgid ""
+"<strong>ERROR</strong>: This email is already registered, please choose "
+"another one."
+msgstr ""
+
+#: classes/classe_errors.php:160 classes/classe_errors.php:163
+msgid ""
+"<strong>ERROR</strong>: This email is not allowed, choose another please."
+msgstr ""
+
+#: classes/classe_errors.php:58
+msgid ""
+"<strong>ERROR</strong>: This part <font color='#FF0000'>%part%</font> is not "
+"allowed in username."
+msgstr ""
+
+#: classes/classe_errors.php:72
+msgid ""
+"<strong>ERROR</strong>: This username is already registered. Please choose "
+"another one."
+msgstr ""
+
+#: classes/classe_errors.php:65
+msgid ""
+"<strong>ERROR</strong>: This username is invalid because it uses illegal "
+"characters. Please enter a valid username."
+msgstr ""
+
+#: classes/classe_errors.php:86
+msgid ""
+"<strong>ERROR</strong>: This username is not allowed, choose another please."
+msgstr ""
+
+#: classes/classe_errors.php:113
+msgid ""
+"<strong>ERROR</strong>: Username may not be longer than %max% characters."
+msgstr ""
+
+#: classes/classe_errors.php:106
+msgid "<strong>ERROR</strong>: Username must be at least %min% characters."
+msgstr ""
+
+#: classes/classe_errors.php:121 classes/classe_errors.php:124
+msgid "<strong>ERROR</strong>: You can't register with just numbers."
+msgstr ""
+
+#: page-setts.php:351
+msgid "Add text (notice) to the registration form"
+msgstr ""
+
+#: page-setts.php:416
+msgid ""
+"After each change in this option (Author Slug Structure), the database needs "
+"to be updated using this option: &#34;update all users with just one click "
+"or in batches&#34;, to update the link for all members"
+msgstr ""
+
+#: page-setts.php:383
+msgid ""
+"After each change in this option (Solved the problem of not being able to "
+"register with certain languages), the database needs to be updated using "
+"this option: &#34;update all users with just one click or in batches&#34;, "
+"to update the link for all members"
+msgstr ""
+
+#: page-setts.php:164
+msgid "All languages (all letters and numbers and accented as: é û)"
+msgstr ""
+
+#: restrict-usernames-emails-characters.php:1036
+msgid "All users have been successfully updated"
+msgstr ""
+
+#: page-setts.php:219
+msgid ""
+"Allow this characters (Symbols or characters accented as é û) &#34;no "
+"recommended&#34;"
+msgstr ""
+
+#: page-setts.php:831
+msgid "and delete the message at the top"
+msgstr ""
+
+#: page-setts.php:161
+msgid "Arabic"
+msgstr ""
+
+#: page-setts.php:163
+msgid "Arabic and Cyrillic"
+msgstr ""
+
+#: page-setts.php:830
+msgid "Are you sure to remove the process of updade database (per part)?"
+msgstr ""
+
+#: restrict-usernames-emails-characters.php:938
+msgid "Are you sure to updating the database (user_nicename)?"
+msgstr ""
+
+#: page-setts.php:402
+msgid "Author Slug Structure"
+msgstr ""
+
+#. Author of the plugin
+msgid "benaceur"
+msgstr ""
+
+#: page-setts.php:326
+msgid "But if you want to add other fields, do not check this box"
+msgstr ""
+
+#: page-setts.php:415
+msgid "Choose how to display the Author Slug"
+msgstr ""
+
+#: page-setts.php:444
+msgid ""
+"Choose how to update (convert) user_nicename when registering a new member "
+"or when updating a member&#39;s personal data or when updating the database "
+"(update all users with just one click or in batches), if you choose &#34;"
+"Enabled (by default)&#34; only non-Latin names will be updated, and if you "
+"choose &#34;Disabled&#34; all will be updated."
+msgstr ""
+
+#: page-setts.php:154
+msgid "Choose language (characters) in username."
+msgstr ""
+
+#: restrict-usernames-emails-characters.php:1015
+msgid "Continue updating..."
+msgstr ""
+
+#: page-setts.php:179
+msgid ""
+"copy your language from <a target=\"_blank\" href=\"http://benaceur-php.com/?"
+"p=2281\">this page</a>"
+msgstr ""
+
+#: page-setts.php:162
+msgid "Cyrillic"
+msgstr ""
+
+#: page-setts.php:160
+msgid "Default language by wordpress (Latin letters)"
+msgstr ""
+
+#: page-setts.php:367
+msgid "Delete all data and settings for plugin of the database."
+msgstr ""
+
+#: page-setts.php:830
+msgid "delete process file"
+msgstr ""
+
+#: page-setts.php:379
+msgid "Disable"
+msgstr ""
+
+#: page-setts.php:414
+msgid "disable this option (default)"
+msgstr ""
+
+#: page-setts.php:443
+msgid "Disabled"
+msgstr ""
+
+#: page-setts.php:412
+msgid "display name"
+msgstr ""
+
+#: classes/classe_mubp.php:125
+msgid "Do not allow usernames that are email addresses."
+msgstr ""
+
+#: page-setts.php:369
+msgid "Do not delete"
+msgstr ""
+
+#: page-setts.php:378
+msgid "Enable"
+msgstr ""
+
+#: page-setts.php:442
+msgid "Enabled (default)"
+msgstr ""
+
+#: page-setts.php:165
+msgid "Enter another language below"
+msgstr ""
+
+#: page-setts.php:997 page-setts.php:1141
+msgid "Error Messages"
+msgstr ""
+
+#: page-setts.php:836
+msgid "Ex: 5000"
+msgstr ""
+
+#: page-setts.php:1187
+msgid "Export Settings"
+msgstr ""
+
+#: page-setts.php:1189
+msgid ""
+"Export the plugin settings as a .json file. This allows you to easily import "
+"the configuration."
+msgstr ""
+
+#: page-setts.php:999
+msgid "Extentions"
+msgstr ""
+
+#: restrict-usernames-emails-characters.php:1806
+msgid "File deleted successfully"
+msgstr ""
+
+#: restrict-usernames-emails-characters.php:1015
+msgid "Finished"
+msgstr ""
+
+#: restrict-usernames-emails-characters.php:931
+msgid "First enable the plugin and save changes, then update the users"
+msgstr ""
+
+#: page-setts.php:410
+msgid "first name"
+msgstr ""
+
+#: page-setts.php:996 page-setts.php:1022
+msgid "General Settings"
+msgstr ""
+
+#: page-setts.php:413
+msgid "hash (numbers & latin letters)"
+msgstr ""
+
+#: restrict-usernames-emails-characters.php:1119
+msgid "here"
+msgstr ""
+
+#: restrict-usernames-emails-characters.php:1112
+msgid "hide"
+msgstr ""
+
+#: page-setts.php:325
+msgid "Hide the entire section of the profile in the form of registration"
+msgstr ""
+
+#: page-setts.php:257
+msgid "How to use:"
+msgstr ""
+
+#. Author URI of the plugin
+msgid "https://benaceur-php.com/"
+msgstr ""
+
+#. URI of the plugin
+msgid "https://benaceur-php.com/?p=2268"
+msgstr ""
+
+#: page-setts.php:428
+msgid ""
+"If &#34;Solved the problem of not being able to register with certain "
+"languages&#34; option is enabled:"
+msgstr ""
+
+#: page-setts.php:695 page-setts.php:712 page-setts.php:744 page-setts.php:773
+msgid ""
+"If we choose the &#34;Make lowercase letters equal uppercase&#34; option&#44;"
+" (latin letters only) it becomes for example:"
+msgstr ""
+
+#: restrict-usernames-emails-characters.php:1100
+msgid ""
+"If you choose a language other than the default language &#34;Choose "
+"language (characters) in username&#34;, option &#34;Solved the problem of "
+"not being able to register with certain languages&#34; must be activated"
+msgstr ""
+
+#: page-setts.php:382
+msgid ""
+"If you only use registration with the Latin alphabet, leave this option "
+"disabled. If the registration is with other letters such as Arabic for "
+"example, this option must be activated to solve the problem of an error "
+"message indicating that 'Couldn&#8217;t register please contact the "
+"webmaster' or the registration is carried out but without the 'user "
+"nicename' (the author’s nicename (slug)) in database, this problem occurs "
+"When the user name is a little long as for example: 'اسم لقب اسم لقب' After "
+"encoding it to become a link."
+msgstr ""
+
+#: page-setts.php:1230
+msgid ""
+"If you use the hook 'login_errors' this also affects registration error "
+"messages, it's preferable to use the hook 'authentificate' if you want to "
+"modify the connection error messages, this is why I deactivated the hook "
+"'login_errors', so if you want to reactivate it, put this line in the file "
+"'functions.php':"
+msgstr ""
+
+#: page-setts.php:1200
+msgid "Import Settings"
+msgstr ""
+
+#: page-setts.php:1202
+msgid "Import the plugin settings from the saved .json file."
+msgstr ""
+
+#: page-setts.php:1226
+msgid "Important to read"
+msgstr ""
+
+#: page-setts.php:998
+msgid "Important!"
+msgstr ""
+
+#: page-setts.php:1214
+msgid "Importing parameter files is in progress, wait ..."
+msgstr ""
+
+#: page-setts.php:1234
+msgid ""
+"In this \"Restriction by part\" parameter, if you are using the second or "
+"3rd or 4th option and you have entered more than one line, you can modify "
+"the separator that appears in the error message by this hook:"
+msgstr ""
+
+#: restrict-usernames-emails-characters.php:1111
+msgid ""
+"In this version of the plugin, the method of saving the nicename (author "
+"slug) when registering a new user or updating their data has been changed. "
+"Therefore, if you are using the &#34;Solved the problem of not being able to "
+"register with certain languages&#34; option, you now need to: First: read "
+"how the plugin works, at the bottom of this page, and second: update the "
+"database: &#34;update all users with just one click or in batches&#34;."
+msgstr ""
+
+#: classes/classe_mubp.php:127
+msgid ""
+"is not allowed to use multi whitespace or whitespace at the beginning or the "
+"end of the username."
+msgstr ""
+
+#: classes/classe_mubp.php:122
+msgid "It's not allowed to use spaces in username."
+msgstr ""
+
+#: page-setts.php:220
+msgctxt "label_settings_field"
+msgid ""
+"<span style=\"color:red; font-style:normal;\">The following symbols <span "
+"style=\"background:#e9cd7a;color:#343414;padding:0 4px;\">&#39; &#34; &#92; "
+"&#60; &#62;</span> have been blocked<br />Because allowing these symbols can "
+"cause problems when the registration</span><br />Place each character in one "
+"line, for example: <br />(<br />+<br />é"
+msgstr ""
+
+#: page-setts.php:105
+msgctxt "label_settings_field"
+msgid "allow use only digits (numbers) in the username"
+msgstr ""
+
+#: page-setts.php:107
+msgctxt "label_settings_field"
+msgid "allow use only numbers, for example: 4752442 or +4752442"
+msgstr ""
+
+#: page-setts.php:558
+msgctxt "label_settings_field"
+msgid "Do not allow use the uppercase (A-Z) in username."
+msgstr ""
+
+#: page-setts.php:122
+msgctxt "label_settings_field"
+msgid "Do not allow usernames that are email addresses"
+msgstr ""
+
+#: page-setts.php:50
+msgctxt "label_settings_field"
+msgid "Enable"
+msgstr ""
+
+#: page-setts.php:56
+msgctxt "label_settings_field"
+msgid "Enable the plugin"
+msgstr ""
+
+#: page-setts.php:503
+msgctxt "label_settings_field"
+msgid "Error: Characters (Symbols) in the username"
+msgstr ""
+
+#: page-setts.php:587
+msgctxt "label_settings_field"
+msgid "Error: Couldn&#8217;t register please contact the webmaster"
+msgstr ""
+
+#: page-setts.php:473
+msgctxt "label_settings_field"
+msgid "Error: Enter a username"
+msgstr ""
+
+#: page-setts.php:581
+msgctxt "label_settings_field"
+msgid "Error: exist email address"
+msgstr ""
+
+#: page-setts.php:575
+msgctxt "label_settings_field"
+msgid "Error: invalid email address"
+msgstr ""
+
+#: page-setts.php:527
+msgctxt "label_settings_field"
+msgid "Error: max length of the username"
+msgstr ""
+
+#: page-setts.php:521
+msgctxt "label_settings_field"
+msgid "Error: min length of the username"
+msgstr ""
+
+#: page-setts.php:491
+msgctxt "label_settings_field"
+msgid "Error: multi whitespace and at the beginning or the end of the username"
+msgstr ""
+
+#: page-setts.php:557
+msgctxt "label_settings_field"
+msgid "Error: No uppercase (A-Z) in username."
+msgstr ""
+
+#: page-setts.php:497
+msgctxt "label_settings_field"
+msgid "Error: only numbers in the username"
+msgstr ""
+
+#: page-setts.php:533 page-setts.php:539 page-setts.php:545
+msgctxt "label_settings_field"
+msgid "Error: part of the username"
+msgstr ""
+
+#: page-setts.php:509
+msgctxt "label_settings_field"
+msgid "Error: restricted emails"
+msgstr ""
+
+#: page-setts.php:515
+msgctxt "label_settings_field"
+msgid "Error: restricted usernames"
+msgstr ""
+
+#: page-setts.php:485
+msgctxt "label_settings_field"
+msgid "Error: space in the username"
+msgstr ""
+
+#: page-setts.php:551
+msgctxt "label_settings_field"
+msgid "Error: The digits less than characters."
+msgstr ""
+
+#: page-setts.php:569
+msgctxt "label_settings_field"
+msgid "Error: type your email address"
+msgstr ""
+
+#: page-setts.php:479
+msgctxt "label_settings_field"
+msgid "Error: username exist"
+msgstr ""
+
+#: page-setts.php:563
+msgctxt "label_settings_field"
+msgid "Error: usernames that are email addresses"
+msgstr ""
+
+#: page-setts.php:247
+msgctxt "label_settings_field"
+msgid ""
+"For example, if we enter \"ben\", any name containing this part will be "
+"blocked as \"benaceur\"<br />Place each word in one line"
+msgstr ""
+
+#: page-setts.php:474 page-setts.php:480 page-setts.php:504 page-setts.php:516
+#: page-setts.php:570 page-setts.php:576 page-setts.php:582
+msgctxt "label_settings_field"
+msgid "Leave it blank to use the default translation"
+msgstr ""
+
+#: page-setts.php:315
+msgctxt "label_settings_field"
+msgid "length with space"
+msgstr ""
+
+#: page-setts.php:285
+msgctxt "label_settings_field"
+msgid "max length of the username"
+msgstr ""
+
+#: page-setts.php:280
+msgctxt "label_settings_field"
+msgid "min length of the username"
+msgstr ""
+
+#: page-setts.php:116
+msgctxt "label_settings_field"
+msgid "No uppercase in username"
+msgstr ""
+
+#: page-setts.php:99
+msgctxt "label_settings_field"
+msgid "Not allow spaces in usernames"
+msgstr ""
+
+#: page-setts.php:255
+msgctxt "label_settings_field"
+msgid "Not allow these emails domain"
+msgstr ""
+
+#: page-setts.php:228
+msgctxt "label_settings_field"
+msgid "Not allow these mails"
+msgstr ""
+
+#: page-setts.php:237
+msgctxt "label_settings_field"
+msgid "Not allow these names"
+msgstr ""
+
+#: page-setts.php:104
+msgctxt "label_settings_field"
+msgid "Not allow use only numbers in the username"
+msgstr ""
+
+#: page-setts.php:106
+msgctxt "label_settings_field"
+msgid "Not allow use only numbers, for example: 4752442 or +4752442"
+msgstr ""
+
+#: page-setts.php:100
+msgctxt "label_settings_field"
+msgid "Not allow use the spaces between words or characters in the user name"
+msgstr ""
+
+#: page-setts.php:229
+msgctxt "label_settings_field"
+msgid ""
+"Place each email in one line, for example: <br />emaila@yahoo.com<br />"
+"emailb@gmail.com"
+msgstr ""
+
+#: page-setts.php:238
+msgctxt "label_settings_field"
+msgid ""
+"Place each name in one line, for example: <br />nameA<br />nameB<br />nameC"
+msgstr ""
+
+#: page-setts.php:127
+msgctxt "label_settings_field"
+msgid "Prevent the use of all Symbols and letters accented in the username"
+msgstr ""
+
+#: page-setts.php:210
+msgctxt "label_settings_field"
+msgid "Prevent the use of characters (Symbols) permitted by wordpress"
+msgstr ""
+
+#: page-setts.php:246
+msgctxt "label_settings_field"
+msgid ""
+"Restriction by part (contain,doesn&#8217;t contain,starts with,ends with)"
+msgstr ""
+
+#: page-setts.php:316
+msgctxt "label_settings_field"
+msgid "take account the space in the username"
+msgstr ""
+
+#: page-setts.php:552
+msgctxt "label_settings_field"
+msgid "The digits (numbers) less than characters."
+msgstr ""
+
+#: page-setts.php:112
+msgctxt "label_settings_field"
+msgid "The digits (numbers) must be less than the characters in username."
+msgstr ""
+
+#: page-setts.php:111
+msgctxt "label_settings_field"
+msgid "The digits must be less than the characters in username"
+msgstr ""
+
+#: page-setts.php:588
+msgctxt "label_settings_field"
+msgid ""
+"use %eml% to get the administrator email automatically<br>Leave this field "
+"blank to use the default translation"
+msgstr ""
+
+#: page-setts.php:528
+msgctxt "label_settings_field"
+msgid "use %max% to change the value automatically"
+msgstr ""
+
+#: page-setts.php:522
+msgctxt "label_settings_field"
+msgid "use %min% to change the value automatically"
+msgstr ""
+
+#: page-setts.php:534 page-setts.php:540 page-setts.php:546
+msgctxt "label_settings_field"
+msgid "use %part% to change the value automatically"
+msgstr ""
+
+#: page-setts.php:117
+msgctxt "label_settings_field"
+msgid "Use uppercase (if latin is enabled)"
+msgstr ""
+
+#: page-setts.php:411
+msgid "last name"
+msgstr ""
+
+#: page-setts.php:837
+msgid "Leave it blank to update all users at once"
+msgstr ""
+
+#: page-setts.php:69 page-setts.php:82
+msgid "leave it empty if the registration form is default"
+msgstr ""
+
+#: page-setts.php:836
+msgid ""
+"Limit the number of users to update (in batches) with every click, if your "
+"database is big"
+msgstr ""
+
+#: page-setts.php:694 page-setts.php:711 page-setts.php:743 page-setts.php:772
+msgid "Make lowercase equal uppercase (disabled)"
+msgstr ""
+
+#: page-setts.php:692 page-setts.php:709 page-setts.php:741 page-setts.php:770
+msgid "Make lowercase equal uppercase (enabled)"
+msgstr ""
+
+#: admin/my-plugins.php:9 admin/my-plugins.php:18
+msgid "more details ..."
+msgstr ""
+
+#: page-setts.php:1008
+msgid "network"
+msgstr ""
+
+#: page-setts.php:409
+msgid "nickname"
+msgstr ""
+
+#: classes/classe_mubp.php:126
+msgid "No uppercase (A-Z) in username."
+msgstr ""
+
+#: page-setts.php:445
+msgid ""
+"Note: This option only works when Option &#34;Solved the problem of not "
+"being able to register with certain languages&#34; is activated and Option "
+"&#34;hash (numbers & latin letters)&#34; is selected, or Option &#34;Solved "
+"the problem of not being able to register with certain languages&#34; is "
+"activated and Option &#34;disable this option&#34; is selected."
+msgstr ""
+
+#: page-setts.php:194
+msgid "only (not recommended)"
+msgstr ""
+
+#: page-setts.php:1241
+msgid "Other plugins of my development"
+msgstr ""
+
+#: restrict-usernames-emails-characters.php:934
+msgctxt "params_js_o"
+msgid "Settings reset successfully"
+msgstr ""
+
+#: restrict-usernames-emails-characters.php:932
+msgctxt "params_js_o"
+msgid "Wait a little ..."
+msgstr ""
+
+#: page-setts.php:256
+msgid "Place each domain name in one line"
+msgstr ""
+
+#: classes/classe_mubp.php:35 classes/classe_mubp.php:128
+#: classes/classe_mubp.php:128
+msgid "Please enter a username."
+msgstr ""
+
+#: restrict-usernames-emails-characters.php:1091
+msgid "Please enter a valid language in &#34;Enter another language below&#34;"
+msgstr ""
+
+#: restrict-usernames-emails-characters.php:1081
+msgid "Please select a language in &#34;Enter another language below&#34;"
+msgstr ""
+
+#: classes/classe_mubp.php:131
+msgid "Please type your email address."
+msgstr ""
+
+#: restrict-usernames-emails-characters.php:935
+#: restrict-usernames-emails-characters.php:1171
+msgid "Please upload a valid .json file"
+msgstr ""
+
+#: restrict-usernames-emails-characters.php:1120
+msgid "Registration is currently closed! open it:"
+msgstr ""
+
+#: page-setts.php:368
+msgid ""
+"Remove all settings and data of the plugin from database when the plugin is "
+"disabled"
+msgstr ""
+
+#: page-setts.php:320
+msgid "Remove the name field from the form of registration"
+msgstr ""
+
+#: page-setts.php:451
+msgid "Remove the submit button (top)"
+msgstr ""
+
+#: page-setts.php:351
+msgid "Replace (Must be at least 4 characters ...) in registration form by:"
+msgstr ""
+
+#: page-setts.php:1055 page-setts.php:1173
+msgid "Reset default settings"
+msgstr ""
+
+#: page-setts.php:1177
+msgid "Reset error_messages"
+msgstr ""
+
+#: page-setts.php:1059
+msgid "Reset general option"
+msgstr ""
+
+#: page-setts.php:767
+msgid "Restrict everything except the following (after .)"
+msgstr ""
+
+#: page-setts.php:765
+msgid "Restrict everything except the following (after @)"
+msgstr ""
+
+#: page-setts.php:763
+msgid "Restrict the following"
+msgstr ""
+
+#. Description of the plugin
+msgid ""
+"Restrict the usernames in registration, email, characters and symbols or "
+"email from specific domain names or language ..."
+msgstr ""
+
+#. Name of the plugin
+#: restrict-usernames-emails-characters.php:1110
+msgid "Restrict Usernames Emails Characters"
+msgstr ""
+
+#: page-setts.php:14
+msgid "Restrict Usernames Emails Characters ..."
+msgstr ""
+
+#: page-setts.php:738
+msgid "Restriction of each username doesn't end with"
+msgstr ""
+
+#: page-setts.php:736
+msgid "Restriction of each username doesn't start with"
+msgstr ""
+
+#: page-setts.php:732
+msgid "Restriction of username that contains"
+msgstr ""
+
+#: page-setts.php:734
+msgid "Restriction of username that doesn't contain"
+msgstr ""
+
+#: page-setts.php:1027 page-setts.php:1048 page-setts.php:1166
+#: restrict-usernames-emails-characters.php:933
+msgid "Save Changes"
+msgstr ""
+
+#: page-setts.php:909
+msgid "Selecting all languages is not recommended."
+msgstr ""
+
+#: page-setts.php:180
+msgid "Separate between language by commas, for example: Hebrew,Greek,Ethiopic"
+msgstr ""
+
+#: restrict-usernames-emails-characters.php:595
+msgid "Settings"
+msgstr ""
+
+#: restrict-usernames-emails-characters.php:1801
+msgid "Settings saved successfully"
+msgstr ""
+
+#: page-setts.php:377
+msgid "Solved the problem of not being able to register with certain languages"
+msgstr ""
+
+#: page-setts.php:827
+msgid "Stop the process of updade database (per part)"
+msgstr ""
+
+#: page-setts.php:211
+msgid ""
+"Symbols permitted by wordpress is: _ . - @<br />Place each character in one "
+"line, for example: <br />@<br />.<br />-"
+msgstr ""
+
+#: page-setts.php:211
+msgid ""
+"Symbols permitted by wordpress is: _ . -<br />Place each character in one "
+"line, for example: <br />_<br />."
+msgstr ""
+
+#: page-setts.php:673
+msgid "Text direction"
+msgstr ""
+
+#: restrict-usernames-emails-characters.php:1818
+msgid "The database is being updated, please wait..."
+msgstr ""
+
+#: classes/classe_mubp.php:121
+msgid "The digits must be less than the characters in username."
+msgstr ""
+
+#: classes/classe_mubp.php:132
+msgid "The email address isn&#8217;t correct."
+msgstr ""
+
+#: page-setts.php:1251
+msgid ""
+"The evaluation of the plugin is important for continuity, If you're finding "
+"this plugin useful, please rate it on: <a target='_blank' href='https:"
+"//wordpress.org/support/plugin/restrict-usernames-emails-characters/reviews/?"
+"filter=5'>this link</a>"
+msgstr ""
+
+#: page-setts.php:76
+msgid "The name of the user_email field in registration form"
+msgstr ""
+
+#: page-setts.php:63
+msgid "The name of the user_login field in registration form"
+msgstr ""
+
+#: page-setts.php:1217
+msgid "The parameters file was imported successfully."
+msgstr ""
+
+#: page-setts.php:1010
+msgid "The plugin must be enabled on the"
+msgstr ""
+
+#: restrict-usernames-emails-characters.php:988
+msgid "There is a newer version, it's recommended to"
+msgstr ""
+
+#: classes/classe_mubp.php:133
+msgid "This email is already registered, please choose another one."
+msgstr ""
+
+#: classes/classe_mubp.php:134
+msgid "This email is not allowed, choose another please."
+msgstr ""
+
+#: classes/classe_mubp.php:139
+msgid "This part (%part%) is not allowed in username."
+msgstr ""
+
+#: classes/classe_mubp.php:137
+msgid ""
+"This part <font color='#FF0000'>%part%</font> is not allowed in username."
+msgstr ""
+
+#: classes/classe_mubp.php:129
+msgid "This username is already registered. Please choose another one."
+msgstr ""
+
+#: restrict-usernames-emails-characters.php:1642 classes/classe_mubp.php:124
+#: classes/classe_mubp.php:124
+msgid ""
+"This username is invalid because it uses illegal characters. Please enter a "
+"valid username."
+msgstr ""
+
+#: classes/classe_mubp.php:116
+msgid "This username is not allowed, choose another please."
+msgstr ""
+
+#: page-setts.php:1012
+msgid "to work without any problem"
+msgstr ""
+
+#: page-setts.php:422
+msgid "Update (all or per part) of the author&#39;s slug for all users"
+msgstr ""
+
+#: page-setts.php:436
+msgid "Update (convert) only names (author slug) not latin"
+msgstr ""
+
+#: page-setts.php:825
+msgid "update all users with just one click or in batches"
+msgstr ""
+
+#: restrict-usernames-emails-characters.php:988
+msgid "update now"
+msgstr ""
+
+#: restrict-usernames-emails-characters.php:1052
+msgid "Updating all users failed"
+msgstr ""
+
+#: page-setts.php:408
+msgid "user login"
+msgstr ""
+
+#: classes/classe_mubp.php:119
+msgid "Username may not be longer than %max% characters."
+msgstr ""
+
+#: classes/classe_mubp.php:117
+msgid "Username must be at least %min% characters."
+msgstr ""
+
+#: page-setts.php:193
+msgid "with latin"
+msgstr ""
+
+#: restrict-usernames-emails-characters.php:988
+msgid "You are using Version"
+msgstr ""
+
+#: page-setts.php:360
+msgid "You can use HTML, as for example:"
+msgstr ""
+
+#: classes/classe_mubp.php:123
+msgid "You can't register with just numbers."
+msgstr ""
