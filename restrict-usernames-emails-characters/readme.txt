@@ -2,9 +2,9 @@
 Contributors: Benaceur 
 Tags: restrict user, author slug, registration, anti-spam, security
 Requires at least: 3.0
-Tested up to: 6.6
+Tested up to: 6.7
 Requires PHP: 5.3.19
-Stable tag: 4.1
+Stable tag: 4.1.1
 License: GPLv2 or later
 
 Restrict the usernames, email addresses, characters and symbols or email from specific domain names or language in registration ...
@@ -79,6 +79,8 @@ https://benaceur-php.com/?p=2268
 
 == Changelog ==
 
+= 4.1.1 =
+* Tested up to wordpress 6.7
 = 4.1 =
 * New: add compatibility with buddyboss platform.
 * New: add first name and last name in "Author Slug Structure" option.
