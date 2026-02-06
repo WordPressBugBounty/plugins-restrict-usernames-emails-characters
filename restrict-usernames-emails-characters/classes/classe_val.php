@@ -72,7 +72,7 @@
 		    $list_chars_ = array_filter(array_unique(array_map('trim', explode(PHP_EOL, $allow_spc_cars))));
 			$list_chars = implode('\\', $list_chars_);
 
-		    $_login = preg_match( '/[à]/', $list_chars ) ? str_replace("à", "", $login) : $login;
+		    $_login = preg_match( '/[à]/', $list_chars ) ? str_replace("à", "9", $login) : $login;
 			
 			if ( preg_match('/^\s+|\s+$| \s+/', $_login ) )
 			return true;

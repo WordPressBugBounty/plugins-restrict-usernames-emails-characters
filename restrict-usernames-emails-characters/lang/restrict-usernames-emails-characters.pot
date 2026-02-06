@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Restrict Usernames Emails Characters\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-08 09:55+0000\n"
+"POT-Creation-Date: 2025-12-01 20:16+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: \n"
@@ -13,19 +13,23 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Loco https://localise.biz/\n"
-"X-Loco-Version: 2.6.11; wp-6.6.1\n"
+"X-Loco-Version: 2.8.0; wp-6.9-RC3-61318; php-8.5.0\n"
 "X-Domain: restrict-usernames-emails-characters"
 
-#: restrict-usernames-emails-characters.php:1044
+#: restrict-usernames-emails-characters.php:1043
 msgid "%d were updated and %d failed for %d user(s)"
 msgstr ""
 
-#: restrict-usernames-emails-characters.php:1017
+#: restrict-usernames-emails-characters.php:1016
 #, php-format
 msgid "%s user were updated for"
 msgid_plural "%s users were updated for"
 msgstr[0] ""
 msgstr[1] ""
+
+#: page-setts.php:219
+msgid "&#34;not recommended&#34;"
+msgstr ""
 
 #: page-setts.php:826
 msgid "(Don&#39;t forget to take a backup of the database)"
@@ -83,7 +87,7 @@ msgid ""
 msgstr ""
 
 #: restrict-usernames-emails-characters.php:529
-#: restrict-usernames-emails-characters.php:1072
+#: restrict-usernames-emails-characters.php:1071
 msgid ""
 "<strong>Core Control:</strong> Sorry, This plugin (Restrict Usernames Emails "
 "Characters) requires PHP"
@@ -202,14 +206,12 @@ msgstr ""
 msgid "All languages (all letters and numbers and accented as: é û)"
 msgstr ""
 
-#: restrict-usernames-emails-characters.php:1036
+#: restrict-usernames-emails-characters.php:1035
 msgid "All users have been successfully updated"
 msgstr ""
 
 #: page-setts.php:219
-msgid ""
-"Allow this characters (Symbols or characters accented as é û) &#34;no "
-"recommended&#34;"
+msgid "Allow this characters (Symbols or characters accented as é û)"
 msgstr ""
 
 #: page-setts.php:831
@@ -261,7 +263,7 @@ msgstr ""
 msgid "Choose language (characters) in username."
 msgstr ""
 
-#: restrict-usernames-emails-characters.php:1015
+#: restrict-usernames-emails-characters.php:1014
 msgid "Continue updating..."
 msgstr ""
 
@@ -345,11 +347,11 @@ msgstr ""
 msgid "Extentions"
 msgstr ""
 
-#: restrict-usernames-emails-characters.php:1806
+#: restrict-usernames-emails-characters.php:1805
 msgid "File deleted successfully"
 msgstr ""
 
-#: restrict-usernames-emails-characters.php:1015
+#: restrict-usernames-emails-characters.php:1014
 msgid "Finished"
 msgstr ""
 
@@ -369,11 +371,11 @@ msgstr ""
 msgid "hash (numbers & latin letters)"
 msgstr ""
 
-#: restrict-usernames-emails-characters.php:1119
+#: restrict-usernames-emails-characters.php:1118
 msgid "here"
 msgstr ""
 
-#: restrict-usernames-emails-characters.php:1112
+#: restrict-usernames-emails-characters.php:1111
 msgid "hide"
 msgstr ""
 
@@ -405,7 +407,7 @@ msgid ""
 " (latin letters only) it becomes for example:"
 msgstr ""
 
-#: restrict-usernames-emails-characters.php:1100
+#: restrict-usernames-emails-characters.php:1099
 msgid ""
 "If you choose a language other than the default language &#34;Choose "
 "language (characters) in username&#34;, option &#34;Solved the problem of "
@@ -460,7 +462,7 @@ msgid ""
 "the separator that appears in the error message by this hook:"
 msgstr ""
 
-#: restrict-usernames-emails-characters.php:1111
+#: restrict-usernames-emails-characters.php:1110
 msgid ""
 "In this version of the plugin, the method of saving the nicename (author "
 "slug) when registering a new user or updating their data has been changed. "
@@ -832,11 +834,11 @@ msgstr ""
 msgid "Please enter a username."
 msgstr ""
 
-#: restrict-usernames-emails-characters.php:1091
+#: restrict-usernames-emails-characters.php:1090
 msgid "Please enter a valid language in &#34;Enter another language below&#34;"
 msgstr ""
 
-#: restrict-usernames-emails-characters.php:1081
+#: restrict-usernames-emails-characters.php:1080
 msgid "Please select a language in &#34;Enter another language below&#34;"
 msgstr ""
 
@@ -845,11 +847,11 @@ msgid "Please type your email address."
 msgstr ""
 
 #: restrict-usernames-emails-characters.php:935
-#: restrict-usernames-emails-characters.php:1171
+#: restrict-usernames-emails-characters.php:1170
 msgid "Please upload a valid .json file"
 msgstr ""
 
-#: restrict-usernames-emails-characters.php:1120
+#: restrict-usernames-emails-characters.php:1119
 msgid "Registration is currently closed! open it:"
 msgstr ""
 
@@ -902,7 +904,7 @@ msgid ""
 msgstr ""
 
 #. Name of the plugin
-#: restrict-usernames-emails-characters.php:1110
+#: restrict-usernames-emails-characters.php:1109
 msgid "Restrict Usernames Emails Characters"
 msgstr ""
 
@@ -943,7 +945,7 @@ msgstr ""
 msgid "Settings"
 msgstr ""
 
-#: restrict-usernames-emails-characters.php:1801
+#: restrict-usernames-emails-characters.php:1800
 msgid "Settings saved successfully"
 msgstr ""
 
@@ -971,7 +973,7 @@ msgstr ""
 msgid "Text direction"
 msgstr ""
 
-#: restrict-usernames-emails-characters.php:1818
+#: restrict-usernames-emails-characters.php:1817
 msgid "The database is being updated, please wait..."
 msgstr ""
 
@@ -1007,7 +1009,7 @@ msgstr ""
 msgid "The plugin must be enabled on the"
 msgstr ""
 
-#: restrict-usernames-emails-characters.php:988
+#: restrict-usernames-emails-characters.php:987
 msgid "There is a newer version, it's recommended to"
 msgstr ""
 
@@ -1032,7 +1034,7 @@ msgstr ""
 msgid "This username is already registered. Please choose another one."
 msgstr ""
 
-#: restrict-usernames-emails-characters.php:1642 classes/classe_mubp.php:124
+#: restrict-usernames-emails-characters.php:1641 classes/classe_mubp.php:124
 #: classes/classe_mubp.php:124
 msgid ""
 "This username is invalid because it uses illegal characters. Please enter a "
@@ -1059,11 +1061,11 @@ msgstr ""
 msgid "update all users with just one click or in batches"
 msgstr ""
 
-#: restrict-usernames-emails-characters.php:988
+#: restrict-usernames-emails-characters.php:987
 msgid "update now"
 msgstr ""
 
-#: restrict-usernames-emails-characters.php:1052
+#: restrict-usernames-emails-characters.php:1051
 msgid "Updating all users failed"
 msgstr ""
 
@@ -1083,7 +1085,7 @@ msgstr ""
 msgid "with latin"
 msgstr ""
 
-#: restrict-usernames-emails-characters.php:988
+#: restrict-usernames-emails-characters.php:987
 msgid "You are using Version"
 msgstr ""
 

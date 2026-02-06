@@ -4,7 +4,7 @@
  * Update URI: https://wordpress.org/plugins/restrict-usernames-emails-characters/
  * Plugin URI: https://benaceur-php.com/?p=2268
  * Description: Restrict the usernames in registration, email, characters and symbols or email from specific domain names or language ...
- * Version: 4.1.1
+ * Version: 4.1.2
  * Author: benaceur
  * Text Domain: restrict-usernames-emails-characters
  * Domain Path: /lang
@@ -976,8 +976,7 @@
 		}
 		
 		function VerPlugUp(){
-		$enable = true;
-		if (apply_filters( 'benrueeg_rue_filter_msg_old_ver_plug', $enable ) === false) return;
+		if ( !apply_filters( 'benrueeg_rue_filter_msg_old_ver_plug', true ) ) return;
 		if ( !current_user_can(apply_filters( 'benrueeg_rue_filter_mu_cap', 'update_plugins' ))) return;
 		
 		$n_plugin = "".BENRUEEG_NAME."/".BENRUEEG_NAME.".php";

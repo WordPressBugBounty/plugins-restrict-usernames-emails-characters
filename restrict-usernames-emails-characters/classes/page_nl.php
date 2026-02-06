@@ -248,7 +248,7 @@
         }
 		
         function urlencode_strtolower($title) {
-	        if ( seems_utf8( $title ) ) {
+	        if ( $this->benrueeg_wp_is_valid_utf8 ( $title ) ) {
 		        if ( function_exists( 'mb_strtolower' ) ) {
 			        $title = mb_strtolower( $title, 'UTF-8' );
 		        }

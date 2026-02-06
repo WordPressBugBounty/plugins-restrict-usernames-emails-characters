@@ -2,9 +2,9 @@
 Contributors: Benaceur 
 Tags: restrict user, author slug, registration, anti-spam, security
 Requires at least: 3.0
-Tested up to: 6.7
+Tested up to: 6.9
 Requires PHP: 5.3.19
-Stable tag: 4.1.1
+Stable tag: 4.1.2
 License: GPLv2 or later
 
 Restrict the usernames, email addresses, characters and symbols or email from specific domain names or language in registration ...
@@ -79,6 +79,11 @@ https://benaceur-php.com/?p=2268
 
 == Changelog ==
 
+= 4.1.2 =
+* Tested up to wordpress 6.9
+* Tested up to php 8.5
+* Deprecated "seems_utf8" function in wordpress 6.9
+* Fix: "Allow this characters (Symbols or characters accented ...)" option.
 = 4.1.1 =
 * Tested up to wordpress 6.7
 = 4.1 =

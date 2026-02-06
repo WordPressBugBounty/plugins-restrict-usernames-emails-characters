@@ -75,12 +75,20 @@
 			return $username;
 		}
 		
+	function benrueeg_wp_is_valid_utf8( $text ) {
+		if ( function_exists( 'wp_is_valid_utf8' ) ) {
+			return wp_is_valid_utf8( $text ); // new function "wp_is_valid_utf8" in wordpress 6.9
+		} else {
+			return seems_utf8( $text );
+		}
+	}	
+		
     function benrueeg_remove_accents( $text, $locale = '' ) {
 	if ( ! preg_match( '/[\x80-\xff]/', $text ) ) {
 		return $text;
 	}
 
-	if ( seems_utf8( $text ) ) {
+	if ( $this->benrueeg_wp_is_valid_utf8 ( $text ) ) {
 
 		/*
 		 * Unicode sequence normalization from NFD (Normalization Form Decomposed)

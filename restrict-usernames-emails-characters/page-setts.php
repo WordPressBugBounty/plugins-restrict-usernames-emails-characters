@@ -216,7 +216,7 @@
 			),
 			array(
 			'uid' => 'allow_spc_cars',
-			'label' => __( 'Allow this characters (Symbols or characters accented as é û) &#34;no recommended&#34;','restrict-usernames-emails-characters' ),
+			'label' => __( 'Allow this characters (Symbols or characters accented as é û)','restrict-usernames-emails-characters' ) . ' <span style="color:red;">' . __( '&#34;not recommended&#34;','restrict-usernames-emails-characters' ) . '</span>',
 			'label-em' => _x( '<span style="color:red; font-style:normal;">The following symbols <span style="background:#e9cd7a;color:#343414;padding:0 4px;">&#39; &#34; &#92; &#60; &#62;</span> have been blocked<br />Because allowing these symbols can cause problems when the registration</span><br />Place each character in one line, for example: <br />(<br />+<br />é', 'label_settings_field', 'restrict-usernames-emails-characters' ) . 
 			'<div class="tri2-BENrueeg_RUE"></div>',
 			'dir' => 'direction:ltr;',
