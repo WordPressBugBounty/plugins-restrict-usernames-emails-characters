@@ -1,0 +1,1539 @@
+<?php
+if ( ! defined( 'ABSPATH' ) ) exit;
+
+/**
+ * Les fonctions suivantes sont original (buddypress, buddyboss-platform et multi-site) et sont inactives,
+ * just pour les vérifier aprés les mises à jour de ses plugings
+*/
+
+// ------
+
+/**
+ * buddypress\bp-members\screens\register.php
+ * add_action('bp_signup_validate', array($this, 'benrueeg_bp_signup_validate' ));
+ * just this action: do_action( 'bp_signup_validate' ); in bp_core_screen_signup
+*/
+function bp_core_screen_signup() {
+	$bp = buddypress();
+
+	if ( ! bp_is_current_component( 'register' ) || bp_current_action() ) {
+		return;
+	}
+
+	// Not a directory.
+	bp_update_is_directory( false, 'register' );
+
+	// If the user is logged in, redirect away from here.
+	if ( is_user_logged_in() ) {
+
+		$redirect_to = bp_is_component_front_page( 'register' )
+			? bp_get_members_directory_permalink()
+			: bp_get_root_url();
+
+		/**
+		 * Filters the URL to redirect logged in users to when visiting registration page.
+		 *
+		 * @since 1.5.1
+		 *
+		 * @param string $redirect_to URL to redirect user to.
+		 */
+		bp_core_redirect( apply_filters( 'bp_loggedin_register_page_redirect_to', $redirect_to ) );
+
+		return;
+	}
+
+	$bp->signup->step = 'request-details';
+
+	// Could the user be accepting an invitation?
+	$active_invite = false;
+	if ( bp_get_members_invitations_allowed() ) {
+		// Check to see if there's a valid invitation.
+		$maybe_invite = bp_get_members_invitation_from_request();
+		if ( $maybe_invite->id && $maybe_invite->invitee_email ) {
+			// Check if this user is already a member.
+			$args = array(
+				'invitee_email' => $maybe_invite->invitee_email,
+				'accepted'      => 'accepted',
+				'fields'        => 'ids',
+			);
+			$accepted_invites = bp_members_invitations_get_invites( $args );
+			if ( ! $accepted_invites ) {
+				$active_invite = true;
+			}
+		}
+	}
+
+	$requests_enabled = bp_get_membership_requests_required();
+
+	if ( ! bp_get_signup_allowed() && ! $active_invite && ! $requests_enabled ) {
+		$bp->signup->step = 'registration-disabled';
+		// If the signup page is submitted, validate and save.
+	} elseif ( isset( $_POST['signup_submit'] ) && bp_verify_nonce_request( 'bp_new_signup' ) ) {
+
+		/**
+		 * Fires before the validation of a new signup.
+		 *
+		 * @since 2.0.0
+		 */
+		do_action( 'bp_signup_pre_validate' );
+
+		// Check the base account details for problems.
+		$account_details = bp_core_validate_user_signup( $_POST['signup_username'], $_POST['signup_email'] );
+
+		// If there are errors with account details, set them for display.
+		if ( ! empty( $account_details['errors']->errors['user_name'] ) ) {
+			$bp->signup->errors['signup_username'] = $account_details['errors']->errors['user_name'][0];
+		}
+
+		if ( ! empty( $account_details['errors']->errors['user_email'] ) ) {
+			$bp->signup->errors['signup_email'] = $account_details['errors']->errors['user_email'][0];
+		}
+
+		// Password strength check.
+		$required_password_strength = bp_members_user_pass_required_strength();
+		$current_password_strength  = null;
+		if ( isset( $_POST['_password_strength_score'] ) ) {
+			$current_password_strength = (int) $_POST['_password_strength_score'];
+		}
+
+		if ( $required_password_strength && ! is_null( $current_password_strength ) && $required_password_strength > $current_password_strength ) {
+			$account_password = new WP_Error(
+				'not_strong_enough_password',
+				__( 'Your password is not strong enough to be allowed on this site. Please use a stronger password.', 'buddypress' )
+			);
+		} else {
+			$signup_pass = '';
+			if ( isset( $_POST['signup_password'] ) ) {
+				$signup_pass = wp_unslash( $_POST['signup_password'] );
+			}
+
+			$signup_pass_confirm = '';
+			if ( isset( $_POST['signup_password_confirm'] ) ) {
+				$signup_pass_confirm = wp_unslash( $_POST['signup_password_confirm'] );
+			}
+
+			// Check the account password for problems.
+			$account_password = bp_members_validate_user_password( $signup_pass, $signup_pass_confirm );
+		}
+
+		$password_error = $account_password->get_error_message();
+
+		if ( $password_error ) {
+			$bp->signup->errors['signup_password'] = $password_error;
+		}
+
+		if ( bp_signup_requires_privacy_policy_acceptance() && ! empty( $_POST['signup-privacy-policy-check'] ) && empty( $_POST['signup-privacy-policy-accept'] ) ) {
+			$bp->signup->errors['signup_privacy_policy'] = __( 'You must indicate that you have read and agreed to the Privacy Policy.', 'buddypress' );
+		}
+
+		$bp->signup->username = $_POST['signup_username'];
+		$bp->signup->email = $_POST['signup_email'];
+
+		// Now we've checked account details, we can check profile information.
+		if ( bp_is_active( 'xprofile' ) ) {
+
+			// Make sure hidden field is passed and populated.
+			if ( isset( $_POST['signup_profile_field_ids'] ) && !empty( $_POST['signup_profile_field_ids'] ) ) {
+
+				// Let's compact any profile field info into an array.
+				$profile_field_ids = explode( ',', $_POST['signup_profile_field_ids'] );
+
+				// Loop through the posted fields formatting any datebox values then validate the field.
+				foreach ( (array) $profile_field_ids as $field_id ) {
+					bp_xprofile_maybe_format_datebox_post_data( $field_id );
+
+					// Trim post fields.
+					if ( isset( $_POST[ 'field_' . $field_id ] ) ) {
+						if ( is_array( $_POST[ 'field_' . $field_id ] ) ) {
+							$_POST[ 'field_' . $field_id ] = array_map( 'trim', $_POST[ 'field_' . $field_id ] );
+						} else {
+							$_POST[ 'field_' . $field_id ] = trim( $_POST[ 'field_' . $field_id ] );
+						}
+					}
+
+					// Create errors for required fields without values.
+					if ( xprofile_check_is_required_field( $field_id ) && empty( $_POST[ 'field_' . $field_id ] ) && ! bp_current_user_can( 'bp_moderate' ) )
+						$bp->signup->errors['field_' . $field_id] = __( 'This is a required field', 'buddypress' );
+				}
+
+				// This situation doesn't naturally occur so bounce to website root.
+			} else {
+				bp_core_redirect( bp_get_root_url() );
+			}
+		}
+
+		// Finally, let's check the blog details, if the user wants a blog and blog creation is enabled.
+		if ( isset( $_POST['signup_with_blog'] ) ) {
+			$active_signup = bp_core_get_root_option( 'registration' );
+
+			if ( 'blog' == $active_signup || 'all' == $active_signup ) {
+				$blog_details = bp_core_validate_blog_signup( $_POST['signup_blog_url'], $_POST['signup_blog_title'] );
+
+				// If there are errors with blog details, set them for display.
+				if ( !empty( $blog_details['errors']->errors['blogname'] ) )
+					$bp->signup->errors['signup_blog_url'] = $blog_details['errors']->errors['blogname'][0];
+
+				if ( !empty( $blog_details['errors']->errors['blog_title'] ) )
+					$bp->signup->errors['signup_blog_title'] = $blog_details['errors']->errors['blog_title'][0];
+			}
+		}
+
+		/**
+		 * Fires after the validation of a new signup.
+		 *
+		 * @since 1.1.0
+		 */
+		do_action( 'bp_signup_validate' );
+
+		// Add any errors to the action for the field in the template for display.
+		if ( !empty( $bp->signup->errors ) ) {
+			foreach ( (array) $bp->signup->errors as $fieldname => $error_message ) {
+				/**
+				 * Filters the error message in the loop.
+				 *
+				 * @since 1.5.0
+				 * @since 8.0.0 Adds the `$fieldname` parameter to the anonymous function.
+				 *
+				 * @param string $value     Error message wrapped in html.
+				 * @param string $fieldname The name of the signup field.
+				 */
+				add_action( 'bp_' . $fieldname . '_errors', function () use ( $error_message, $fieldname ) {
+					echo wp_kses(
+						/**
+						 * Filter here to edit the error message about the invalid field value.
+						 *
+						 * @since 1.5.0
+						 * @since 8.0.0 Adds the `$fieldname` parameter.
+						 *
+						 * @param string $value     Error message wrapped in html.
+						 * @param string $fieldname The name of the signup field.
+						 */
+						apply_filters( 'bp_members_signup_error_message', "<div class=\"error\">" . $error_message . "</div>", $fieldname ),
+						array(
+							'div' => array( 'class' => true ),
+						)
+					);
+				} );
+			}
+		} else {
+			$bp->signup->step = 'save-details';
+
+			// No errors! Let's register those deets.
+			$active_signup = bp_core_get_root_option( 'registration' );
+
+			if ( 'none' != $active_signup || $requests_enabled ) {
+
+				// Make sure the extended profiles module is enabled.
+				if ( bp_is_active( 'xprofile' ) ) {
+					// Let's compact any profile field info into usermeta.
+					$profile_field_ids = explode( ',', $_POST['signup_profile_field_ids'] );
+
+					/*
+					 * Loop through the posted fields, formatting any
+					 * datebox values, then add to usermeta.
+					 */
+					foreach ( (array) $profile_field_ids as $field_id ) {
+						bp_xprofile_maybe_format_datebox_post_data( $field_id );
+
+						if ( !empty( $_POST['field_' . $field_id] ) )
+							$usermeta['field_' . $field_id] = $_POST['field_' . $field_id];
+
+						if ( !empty( $_POST['field_' . $field_id . '_visibility'] ) )
+							$usermeta['field_' . $field_id . '_visibility'] = $_POST['field_' . $field_id . '_visibility'];
+					}
+
+					// Store the profile field ID's in usermeta.
+					$usermeta['profile_field_ids'] = $_POST['signup_profile_field_ids'];
+				}
+
+				// Hash and store the password.
+				$usermeta['password'] = wp_hash_password( $_POST['signup_password'] );
+
+				// If the user decided to create a blog, save those details to usermeta.
+				if ( 'blog' == $active_signup || 'all' == $active_signup )
+					$usermeta['public'] = ( isset( $_POST['signup_blog_privacy'] ) && 'public' == $_POST['signup_blog_privacy'] ) ? true : false;
+
+				/**
+				 * Filters the user meta used for signup.
+				 *
+				 * @since 1.1.0
+				 *
+				 * @param array $usermeta Array of user meta to add to signup.
+				 */
+				$usermeta = apply_filters( 'bp_signup_usermeta', $usermeta );
+
+				// Finally, sign up the user and/or blog.
+				if ( isset( $_POST['signup_with_blog'] ) && is_multisite() )
+					$wp_user_id = bp_core_signup_blog( $blog_details['domain'], $blog_details['path'], $blog_details['blog_title'], $_POST['signup_username'], $_POST['signup_email'], $usermeta );
+				else
+					$wp_user_id = bp_core_signup_user( $_POST['signup_username'], $_POST['signup_password'], $_POST['signup_email'], $usermeta );
+
+				if ( is_wp_error( $wp_user_id ) ) {
+					$bp->signup->step = 'request-details';
+					bp_core_add_message( $wp_user_id->get_error_message(), 'error' );
+				} else {
+					$bp->signup->step = 'completed-confirmation';
+				}
+			}
+
+			/**
+			 * Fires after the completion of a new signup.
+			 *
+			 * @since 1.1.0
+			 */
+			do_action( 'bp_complete_signup' );
+		}
+
+	}
+
+	/**
+	 * Fires right before the loading of the Member registration screen template file.
+	 *
+	 * @since 1.5.0
+	 */
+	do_action( 'bp_core_screen_signup' );
+
+	/**
+	 * Filters the template to load for the Member registration page screen.
+	 *
+	 * @since 1.5.0
+	 *
+	 * @param string[] $value Path to the list of Member registration templates to load.
+	 */
+	$templates   = apply_filters( 'bp_core_template_register', array( 'register', 'registration/register' ) );
+	$templates[] = 'members/register';
+
+	bp_core_load_template( $templates );
+}
+add_action( 'bp_screens', 'bp_core_screen_signup' );
+/**
+ * buddypress\bp-members\screens\register.php
+ * add_action('bp_signup_validate', array($this, 'benrueeg_bp_signup_validate' ));
+ * just this action: do_action( 'bp_signup_validate' ); in bp_core_screen_signup
+*/
+
+/**
+ * buddyboss-platform\bp-xprofile\bp-xprofile-filters.php
+ * add_filter( 'xprofile_validate_field', array($this, 'benrueeg_bp_xprofile_validate_nickname_value'), 9, 4 );
+*/
+function bp_xprofile_validate_nickname_value( $retval, $field_id, $value, $user_id = null ) {
+	global $wpdb;
+
+	if ( $field_id != bp_xprofile_nickname_field_id() ) {
+		return $retval;
+	}
+
+	if ( $retval ) {
+		return $retval;
+	}
+
+	$value      = strtolower( $value );
+	$field_name = xprofile_get_field( $field_id )->name;
+
+	// Empty nickname.
+	if ( '' === trim( $value ) ) {
+		return sprintf( __( '%s is required and not allowed to be empty.', 'buddyboss' ), $field_name );
+	}
+
+	// only alpha numeric, underscore, dash.
+	if ( ! preg_match( '/^([A-Za-z0-9-_\.]+)$/', $value ) ) {
+		return sprintf( __( 'Invalid %s. Only "a-z", "0-9", "-", "_" and "." are allowed.', 'buddyboss' ), $field_name );
+	}
+
+	// Check user unique identifier exist.
+	$check_exists = $wpdb->get_var( // phpcs:ignore
+		$wpdb->prepare(
+			"SELECT count(*) FROM {$wpdb->usermeta} WHERE meta_key = %s AND meta_value = %s",
+			'bb_profile_slug',
+			$value
+		)
+	);
+
+	if ( $check_exists > 0 ) {
+		// translators: Nickname field.
+		return sprintf( __( 'Invalid %s.', 'buddyboss' ), $field_name );
+	}
+
+	// must be shorter then 32 characters
+	$nickname_length = apply_filters( 'xprofile_nickname_max_length', 32 );
+
+	if (
+		function_exists( 'normalizer_is_normalized' )
+		&& function_exists( 'normalizer_normalize' )
+	) {
+		try {
+			// Ensures that the combined characters are treated as a single character.
+			if ( ! normalizer_is_normalized( $value ) ) {
+				$value = normalizer_normalize( $value );
+			}
+		} catch ( Exception $e ) {
+			// Ignore the exception, continue execution.
+		}
+	}
+
+	$value_length = function_exists( 'mb_strlen' ) ? mb_strlen( $value ) : strlen( $value );
+	if ( $value_length > $nickname_length ) {
+		return sprintf( __( '%1$s must be shorter than %2$d characters.', 'buddyboss' ), $field_name, $nickname_length );
+	}
+
+	// Minimum of 3 characters.
+	if ( $value_length < 3 ) {
+		return sprintf( __( '%s must be at least 3 characters', 'buddyboss' ), $field_name );
+	}
+
+	// Register page validation for username.
+	if ( ! is_user_logged_in() ) {
+		// Check user has same login or not.
+		$user = get_user_by( 'login', $value );
+
+		if ( false !== $user ) {
+			return sprintf( __( '%s has already been taken.', 'buddyboss' ), $field_name );
+		}
+	}
+
+	$where = array(
+		'meta_key = "nickname"',
+		'meta_value = "' . $value . '"',
+	);
+
+	if ( $user_id ) {
+		$where[] = 'user_id != ' . $user_id;
+	}
+
+	$sql = sprintf(
+		'SELECT count(*) FROM %s WHERE %s',
+		$wpdb->usermeta,
+		implode( ' AND ', $where )
+	);
+
+	if ( $wpdb->get_var( $sql ) > 0 ) {
+		return sprintf( __( '%s has already been taken.', 'buddyboss' ), $field_name );
+	}
+
+	return $retval;
+}
+/**
+ * buddyboss-platform\bp-xprofile\bp-xprofile-filters.php
+ * add_filter( 'xprofile_validate_field', array($this, 'benrueeg_bp_xprofile_validate_nickname_value'), 9, 4 );
+*/
+
+/**
+ * buddyboss-platform\bp-xprofile\bp-xprofile-filters.php
+ * add_filter( 'xprofile_validate_field', array($this, 'benrueeg_bb_xprofile_validate_character_limit_value'), 9, 3 );
+*/
+function bb_xprofile_validate_character_limit_value( $retval, $field_id, $value ) {
+	if ( ! in_array( (int) $field_id, array( bp_xprofile_firstname_field_id(), bp_xprofile_lastname_field_id() ), true ) ) {
+		return $retval;
+	}
+
+	$value = strtolower( $value );
+
+	if (
+		function_exists( 'normalizer_is_normalized' )
+		&& function_exists( 'normalizer_normalize' )
+	) {
+		try {
+			// Ensures that the combined characters are treated as a single character.
+			if ( ! normalizer_is_normalized( $value ) ) {
+				$value = normalizer_normalize( $value );
+			}
+		} catch ( Exception $e ) {
+			// Ignore the exception, continue execution.
+		}
+	}
+
+	$field_name = xprofile_get_field( $field_id )->name;
+
+	// Must be shorter than 32 characters.
+	$field_length = (int) apply_filters( 'bb_xprofile_field_character_max_length', 32 );
+	$value_length = function_exists( 'mb_strlen' ) ? mb_strlen( $value ) : strlen( $value );
+
+	if ( $value_length > $field_length ) {
+		return sprintf(
+			/* translators: 1. Field Name, 2. character length. */
+			__( '%1$s must be shorter than %2$d characters.', 'buddyboss' ),
+			$field_name,
+			$field_length
+		);
+	}
+
+	return $retval;
+}
+/**
+ * buddyboss-platform\bp-xprofile\bp-xprofile-filters.php
+ * add_filter( 'xprofile_validate_field', array($this, 'benrueeg_bb_xprofile_validate_character_limit_value'), 9, 3 );
+*/
+
+/**
+ * buddypress\bp-settings\actions\general.php
+ * add_action('bp_actions', array($this, '_bp_settings_action_general'), 10, 1);
+*/
+function bp_settings_action_general() {
+	if ( ! bp_is_post_request() ) {
+		return;
+	}
+
+	// Bail if no submit action.
+	if ( ! isset( $_POST['submit'] ) ) {
+		return;
+	}
+
+	// Bail if not in settings.
+	if ( ! bp_is_settings_component() || ! bp_is_current_action( 'general' ) ) {
+		return;
+	}
+
+	// 404 if there are any additional action variables attached
+	if ( bp_action_variables() ) {
+		bp_do_404();
+		return;
+	}
+
+	// Define local defaults
+	$bp            = buddypress();           // The instance
+	$email_error   = false;                  // invalid|blocked|taken|empty|nochange
+	$pass_error    = false;                  // invalid|mismatch|empty|nochange
+	$pass_changed  = false;                  // true if the user changes their password
+	$email_changed = false;                  // true if the user changes their email
+	$feedback_type = 'error';                // success|error
+	$feedback      = array();                // array of strings for feedback.
+	$user_id       = bp_displayed_user_id(); // The ID of the user being displayed.
+	$path_chunks   = array( bp_get_settings_slug() );
+
+	// Nonce check.
+	check_admin_referer( 'bp_settings_general' );
+
+	// Validate the user again for the current password when making a big change.
+	if ( ( is_super_admin() ) || ( ! empty( $_POST['pwd'] ) && wp_check_password( $_POST['pwd'], $bp->displayed_user->userdata->user_pass, $user_id ) ) ) {
+
+		$update_user = array(
+			'ID' => (int) $user_id,
+		);
+
+		/* Email Change Attempt ******************************************/
+
+		if ( ! empty( $_POST['email'] ) ) {
+
+			// What is missing from the profile page vs signup -
+			// let's double check the goodies.
+			$user_email     = sanitize_email( esc_html( trim( $_POST['email'] ) ) );
+			$old_user_email = $bp->displayed_user->userdata->user_email;
+
+			// User is changing email address.
+			if ( $old_user_email !== $user_email ) {
+				// Run some tests on the email address.
+				$email_checks = bp_core_validate_email_address( $user_email );
+
+				if ( true !== $email_checks ) {
+					if ( isset( $email_checks['invalid'] ) ) {
+						$email_error = 'invalid';
+					}
+
+					if ( isset( $email_checks['domain_banned'] ) || isset( $email_checks['domain_not_allowed'] ) ) {
+						$email_error = 'blocked';
+					}
+
+					if ( isset( $email_checks['in_use'] ) ) {
+						$email_error = 'taken';
+					}
+				}
+
+				// Store a hash to enable email validation.
+				if ( false === $email_error ) {
+					$hash = wp_generate_password( 32, false );
+
+					$pending_email = array(
+						'hash'     => $hash,
+						'newemail' => $user_email,
+					);
+
+					bp_update_user_meta( $user_id, 'pending_email_change', $pending_email );
+					$verify_link = add_query_arg(
+						'verify_email_change',
+						$hash,
+						bp_displayed_user_url( bp_members_get_path_chunks( $path_chunks ) )
+					);
+
+					// Send the verification email.
+					$args = array(
+						'tokens' => array(
+							'displayname'    => bp_core_get_user_displayname( $user_id ),
+							'old-user.email' => $old_user_email,
+							'user.email'     => $user_email,
+							'verify.url'     => esc_url( $verify_link ),
+						),
+					);
+					bp_send_email( 'settings-verify-email-change', $user_email, $args );
+
+					// We mark that the change has taken place so as to ensure a
+					// success message, even though verification is still required.
+					$email_changed = true;
+				}
+
+			// No change.
+			} else {
+				$email_error = false;
+			}
+
+		// Email address cannot be empty.
+		} else {
+			$email_error = 'empty';
+		}
+
+		/* Password Change Attempt ***************************************/
+
+		if ( ! empty( $_POST['pass1'] ) && ! empty( $_POST['pass2'] ) ) {
+			$pass         = wp_unslash( $_POST['pass1'] );
+			$pass_confirm = wp_unslash( $_POST['pass2'] );
+
+			// Password strength check.
+			$required_password_strength = bp_members_user_pass_required_strength();
+			$current_password_strength  = null;
+			if ( isset( $_POST['_password_strength_score'] ) ) {
+				$current_password_strength = (int) $_POST['_password_strength_score'];
+			}
+
+			if ( $required_password_strength && ! is_null( $current_password_strength ) && $required_password_strength > $current_password_strength ) {
+				$pass_error = new WP_Error(
+					'not_strong_enough_password',
+					__( 'Your password is not strong enough to be allowed on this site. Please use a stronger password.', 'buddypress' )
+				);
+			} else {
+				$pass_error = bp_members_validate_user_password( $pass, $pass_confirm, $update_user );
+
+				if ( ! $pass_error->get_error_message() ) {
+					// Password change attempt is successful.
+					if ( ( ! empty( $_POST['pwd'] ) && wp_unslash( $_POST['pwd'] ) !== $pass ) || is_super_admin() )  {
+						$update_user['user_pass'] = $_POST['pass1'];
+						$pass_error               = false;
+						$pass_changed             = true;
+
+					// The new password is the same as the current password.
+					} else {
+						$pass_error->add( 'same_user_password', __( 'The new password must be different from the current password.', 'buddypress' ) );
+					}
+				}
+			}
+
+		// Both password fields were empty.
+		} elseif ( empty( $_POST['pass1'] ) && empty( $_POST['pass2'] ) ) {
+			$pass_error = false;
+
+		// One of the password boxes was left empty.
+		} elseif ( ( empty( $_POST['pass1'] ) && ! empty( $_POST['pass2'] ) ) || ( ! empty( $_POST['pass1'] ) && empty( $_POST['pass2'] ) ) ) {
+			$pass_error = new WP_Error( 'empty_user_password', __( 'One of the password fields was empty.', 'buddypress' ) );
+		}
+
+		// Unset the password field to prevent it from emptying out the
+		// user's user_pass field in the database.
+		if ( false === $pass_changed ) {
+			unset( $update_user['user_pass'] );
+		}
+
+		// Clear cached data, so that the changed settings take effect
+		// on the current page load.
+		if ( ( false === $email_error ) && ( false === $pass_error ) && ( wp_update_user( $update_user ) ) ) {
+			$bp->displayed_user->userdata = bp_core_get_core_userdata( $user_id );
+		}
+
+	// Password Error.
+	} else {
+		$pass_error = new WP_Error( 'invalid_user_password', __( 'Your current password is invalid.', 'buddypress' ) );
+	}
+
+	// Email feedback.
+	switch ( $email_error ) {
+		case 'invalid' :
+			$feedback['email_invalid']  = __( 'That email address is invalid. Check the formatting and try again.', 'buddypress' );
+			break;
+		case 'blocked' :
+			$feedback['email_blocked']  = __( 'That email address is currently unavailable for use.', 'buddypress' );
+			break;
+		case 'taken' :
+			$feedback['email_taken']    = __( 'That email address is already taken.', 'buddypress' );
+			break;
+		case 'empty' :
+			$feedback['email_empty']    = __( 'Email address cannot be empty.', 'buddypress' );
+			break;
+		case false :
+			// No change.
+			break;
+	}
+
+	if ( is_wp_error( $pass_error ) && $pass_error->get_error_message() ) {
+		$feedback[ $pass_error->get_error_code() ] = $pass_error->get_error_message();
+	}
+
+	// No errors so show a simple success message.
+	if ( ( ( false === $email_error ) || ( false == $pass_error ) ) && ( ( true === $pass_changed ) || ( true === $email_changed ) ) ) {
+		$feedback[]    = __( 'Your settings have been saved.', 'buddypress' );
+		$feedback_type = 'success';
+
+	// Some kind of errors occurred.
+	} elseif ( ( ( false === $email_error ) || ( false === $pass_error ) ) && ( ( false === $pass_changed ) || ( false === $email_changed ) ) ) {
+		if ( bp_is_my_profile() ) {
+			$feedback['nochange'] = __( 'No changes were made to your account.', 'buddypress' );
+		} else {
+			$feedback['nochange'] = __( 'No changes were made to this account.', 'buddypress' );
+		}
+	}
+
+	// Set the URL to redirect the user to.
+	$path_chunks[] = 'general';
+	$redirect_to   = bp_displayed_user_url( bp_members_get_path_chunks( $path_chunks ) );
+
+	/**
+	 * Fires after the general settings have been saved, and before redirect.
+	 *
+	 * @since 1.5.0
+	 * @since 11.0.0 Add the `$user_id` & `$redirect_to` parameters.
+	 *
+	 * @param int    $user_id     The ID of the user being displayed.
+	 * @param string $redirect_to The Default Front-end General Settings Screen URL.
+	 */
+	do_action( 'bp_core_general_settings_after_save', $user_id, $redirect_to );
+
+	// Set the feedback.
+	bp_core_add_message( implode( "\n", $feedback ), $feedback_type );
+
+	// Redirect to prevent issues with browser back button.
+	bp_core_redirect( $redirect_to );
+}
+add_action( 'bp_actions', 'bp_settings_action_general' );
+/**
+ * buddypress\bp-settings\actions\general.php
+ * add_action('bp_actions', array($this, '_bp_settings_action_general'), 10, 1);
+*/
+
+/**
+ * buddyboss-platform\bp-settings\actions\general.php
+ * add_action('bp_actions', array($this, '_bb_settings_action_general'), 10, 1);
+*/
+function bp_settings_action_general() {
+	if ( ! bp_is_post_request() ) {
+		return;
+	}
+
+	// Bail if no submit action.
+	if ( ! isset( $_POST['submit'] ) ) {
+		return;
+	}
+
+	// Bail if not in settings.
+	if ( ! bp_is_settings_component() || ! bp_is_current_action( 'general' ) ) {
+		return;
+	}
+
+	// 404 if there are any additional action variables attached
+	if ( bp_action_variables() ) {
+		bp_do_404();
+		return;
+	}
+
+	// Define local defaults.
+	$bp            = buddypress(); // The instance.
+	$email_error   = '';           // Email error code: invalid|blocked|taken|empty|nochange.
+	$pass_error    = '';           // Password error code: invalid|mismatch|empty|nochange.
+	$pass_changed  = false;        // true if the user changes their password.
+	$email_changed = false;        // true if the user changes their email.
+	$feedback_type = 'error';      // success|error.
+	$feedback      = array();      // array of strings for feedback.
+
+	// Nonce check.
+	check_admin_referer( 'bp_settings_general' );
+
+	// Validate the user again for the current password when making a big change.
+	if ( ( is_super_admin() ) || ( ! empty( $_POST['pwd'] ) && wp_check_password( $_POST['pwd'], $bp->displayed_user->userdata->user_pass, bp_displayed_user_id() ) ) ) {
+
+		$update_user = get_userdata( bp_displayed_user_id() );
+
+		/* Email Change Attempt ******************************************/
+
+		if ( ! empty( $_POST['email'] ) ) {
+
+			// What is missing from the profile page vs signup -
+			// let's double check the goodies.
+			$user_email     = sanitize_email( esc_html( trim( $_POST['email'] ) ) );
+			$old_user_email = $bp->displayed_user->userdata->user_email;
+
+			// User is changing email address.
+			if ( $old_user_email !== $user_email ) {
+
+				// Run some tests on the email address.
+				$email_checks = bp_core_validate_email_address( $user_email );
+
+				if ( true !== $email_checks ) {
+					if ( isset( $email_checks['invalid'] ) ) {
+						$email_error = 'invalid';
+					}
+
+					if ( isset( $email_checks['domain_banned'] ) || isset( $email_checks['domain_not_allowed'] ) ) {
+						$email_error = 'blocked';
+					}
+
+					if ( isset( $email_checks['in_use'] ) ) {
+						$email_error = 'taken';
+					}
+
+					if ( isset( $email_checks['bb_restricted_email'] ) ) {
+						$email_error = 'bb_restricted_email';
+					}
+				}
+
+				// Store a hash to enable email validation.
+				if ( empty( $email_error ) ) {
+					$hash = wp_generate_password( 32, false );
+
+					$pending_email = array(
+						'hash'     => $hash,
+						'newemail' => $user_email,
+					);
+
+					bp_update_user_meta( bp_displayed_user_id(), 'pending_email_change', $pending_email );
+					$verify_link = bp_displayed_user_domain() . bp_get_settings_slug() . '/?verify_email_change=' . $hash;
+
+					// Send the verification email.
+					$args = array(
+						'tokens' => array(
+							'displayname'    => bp_core_get_user_displayname( bp_displayed_user_id() ),
+							'old-user.email' => $old_user_email,
+							'user.email'     => $user_email,
+							'verify.url'     => esc_url( $verify_link ),
+						),
+					);
+					bp_send_email( 'settings-verify-email-change', bp_displayed_user_id(), $args );
+					// We mark that the change has taken place so as to ensure a
+					// success message, even though verification is still required.
+					$_POST['email'] = $update_user->user_email;
+					$email_changed  = true;
+				}
+
+				// No change.
+			} else {
+				$email_error = '';
+			}
+
+			// Email address cannot be empty.
+		} else {
+			$email_error = 'empty';
+		}
+
+		/* Password Change Attempt ***************************************/
+
+		if ( ! empty( $_POST['pass1'] ) && ! empty( $_POST['pass2'] ) ) {
+
+			if ( ( $_POST['pass1'] == $_POST['pass2'] ) && ! strpos( ' ' . wp_unslash( $_POST['pass1'] ), '\\' ) ) {
+
+				// Password change attempt is successful.
+				if ( ( ! empty( $_POST['pwd'] ) && $_POST['pwd'] != $_POST['pass1'] ) || is_super_admin() ) {
+					$update_user->user_pass = $_POST['pass1'];
+					$pass_changed           = true;
+
+					// The new password is the same as the current password.
+				} else {
+					$pass_error = 'same';
+				}
+
+				// Password change attempt was unsuccessful.
+			} else {
+				$pass_error = 'mismatch';
+			}
+
+			// Both password fields were empty.
+		} elseif ( empty( $_POST['pass1'] ) && empty( $_POST['pass2'] ) ) {
+			$pass_error = '';
+
+			// One of the password boxes was left empty.
+		} elseif ( ( empty( $_POST['pass1'] ) && ! empty( $_POST['pass2'] ) ) || ( ! empty( $_POST['pass1'] ) && empty( $_POST['pass2'] ) ) ) {
+			$pass_error = 'empty';
+		}
+
+		// The structure of the $update_user object changed in WP 3.3, but
+		// wp_update_user() still expects the old format.
+		if ( isset( $update_user->data ) && is_object( $update_user->data ) ) {
+			$update_user = $update_user->data;
+			$update_user = get_object_vars( $update_user );
+
+			// Unset the password field to prevent it from emptying out the
+			// user's user_pass field in the database.
+			// @see wp_update_user().
+			if ( false === $pass_changed ) {
+				unset( $update_user['user_pass'] );
+			}
+		}
+
+		// Clear cached data, so that the changed settings take effect
+		// on the current page load.
+		clean_user_cache( bp_displayed_user_id() );
+
+		// Restrict to send WordPress notification when change password from BuddyBoss.
+		add_filter( 'send_password_change_email', '__return_false' );
+
+		if ( ( empty( $email_error ) ) && ( empty( $pass_error ) ) && ( wp_update_user( $update_user ) ) ) {
+			$bp->displayed_user->userdata = bp_core_get_core_userdata( bp_displayed_user_id() );
+		}
+
+		// Password Error.
+	} else {
+		$pass_error = 'invalid';
+	}
+
+	// Email feedback.
+	switch ( $email_error ) {
+		case 'invalid':
+			$feedback['email_invalid'] = __( 'That email address is invalid. Check the formatting and try again.', 'buddyboss' );
+			break;
+		case 'blocked':
+			$feedback['email_blocked'] = __( 'That email address is currently unavailable for use.', 'buddyboss' );
+			break;
+		case 'taken':
+			$feedback['email_taken'] = __( 'That email address is already taken.', 'buddyboss' );
+			break;
+		case 'empty':
+			$feedback['email_empty'] = __( 'Email address cannot be empty.', 'buddyboss' );
+			break;
+		case 'bb_restricted_email':
+			$feedback['bb_restricted_email'] = __( 'This email address or domain has been blacklisted. If you think you are seeing this in error, please contact the site administrator.', 'buddyboss' );
+			break;
+		case false:
+			// No change.
+			break;
+	}
+
+	// Password feedback.
+	switch ( $pass_error ) {
+		case 'invalid':
+			$feedback['pass_error'] = __( 'Your current password is invalid.', 'buddyboss' );
+			break;
+		case 'mismatch':
+			$feedback['pass_mismatch'] = __( 'The new password fields did not match.', 'buddyboss' );
+			break;
+		case 'empty':
+			$feedback['pass_empty'] = __( 'One of the password fields was empty.', 'buddyboss' );
+			break;
+		case 'same':
+			$feedback['pass_same'] = __( 'The new password must be different from the current password.', 'buddyboss' );
+			break;
+		case false:
+			// No change.
+			break;
+	}
+
+	// Send notification when user send password.
+	if ( true === $pass_changed && empty( $pass_error ) ) {
+		// If the user is changing their password, send them a confirmation email.
+		if (
+			! bb_enabled_legacy_email_preference() &&
+			bb_get_modern_notification_admin_settings_is_enabled( 'bb_account_password', 'members' ) &&
+			true === bb_is_notification_enabled( bp_displayed_user_id(), 'bb_account_password' )
+		) {
+
+			$unsubscribe_args = array(
+				'user_id'           => (int) bp_displayed_user_id(),
+				'notification_type' => 'settings-password-changed',
+			);
+
+			$args = array(
+				'tokens' => array(
+					'reset.url'   => esc_url( wp_lostpassword_url() ),
+					'unsubscribe' => esc_url( bp_email_get_unsubscribe_link( $unsubscribe_args ) ),
+				),
+			);
+
+			// Send notification email.
+			bp_send_email( 'settings-password-changed', (int) bp_displayed_user_id(), $args );
+		}
+
+		if (
+			! bb_enabled_legacy_email_preference() &&
+			bb_get_modern_notification_admin_settings_is_enabled( 'bb_account_password', 'members' ) &&
+			bp_is_active( 'notifications' )
+		) {
+
+			// Send a notification to the user.
+			bp_notifications_add_notification(
+				array(
+					'user_id'           => bp_displayed_user_id(),
+					'item_id'           => bp_displayed_user_id(),
+					'secondary_item_id' => bp_displayed_user_id(),
+					'component_name'    => buddypress()->members->id,
+					'component_action'  => 'bb_account_password',
+					'date_notified'     => bp_core_current_time(),
+					'allow_duplicate'   => true,
+					'is_new'            => 1,
+				)
+			);
+		}
+	}
+
+	// No errors so show a simple success message.
+	if (
+		(
+			empty( $email_error ) ||
+			empty( $pass_error )
+		) &&
+		(
+			true === $pass_changed ||
+			true === $email_changed
+		)
+	) {
+		$feedback[]    = __( 'Your settings have been saved.', 'buddyboss' );
+		$feedback_type = 'success';
+
+		// Some kind of errors occurred.
+	} elseif (
+		empty( $email_error ) &&
+		empty( $pass_error ) &&
+		false === $pass_changed &&
+		false === $email_changed
+	) {
+		if ( bp_is_my_profile() ) {
+			$feedback['nochange'] = __( 'No changes were made to your account.', 'buddyboss' );
+		} else {
+			$feedback['nochange'] = __( 'No changes were made to this account.', 'buddyboss' );
+		}
+	}
+
+	// Set the feedback.
+	bp_core_add_message( implode( "\n", $feedback ), $feedback_type );
+
+	/**
+	 * Fires after the general settings have been saved, and before redirect.
+	 *
+	 * @since BuddyPress 1.5.0
+	 */
+	do_action( 'bp_core_general_settings_after_save' );
+
+	// Redirect to prevent issues with browser back button.
+	bp_core_redirect( trailingslashit( bp_displayed_user_domain() . bp_get_settings_slug() . '/general' ) );
+}
+add_action( 'bp_actions', 'bp_settings_action_general' );
+/**
+ * buddyboss-platform\bp-settings\actions\general.php
+ * add_action('bp_actions', array($this, '_bb_settings_action_general'), 10, 1);
+*/
+
+
+// #######################
+			/**
+				* if the user_login to activated is invalid (the language changed after registration).
+			*/
+// #######################
+
+
+/**
+ * buddypress\bp-members\screens\activate.php
+ * add_action('bp_actions', array($this, '_bp_members_action_activate_account'), 10, 1);
+*/
+function bp_members_action_activate_account() {
+	if ( ! bp_is_current_component( 'activate' ) ) {
+		return;
+	}
+
+	if ( is_user_logged_in() ) {
+		return;
+	}
+
+	if ( ! empty( $_POST['key'] ) ) {
+		$key = wp_unslash( $_POST['key'] );
+
+	// Backward compatibility with templates using `method="get"` in their activation forms.
+	} elseif ( ! empty( $_GET['key'] ) ) {
+		$key = wp_unslash( $_GET['key'] );
+	}
+
+	if ( empty( $key ) ) {
+		return;
+	}
+
+	$redirect = bp_get_activation_page();
+
+	/**
+	 * Filters the activation signup.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param bool|int $value Value returned by activation.
+	 *                        Integer on success, boolean on failure.
+	 */
+	$user = apply_filters( 'bp_core_activate_account', bp_core_activate_signup( $key ) );
+
+	// If there were errors, add a message and redirect.
+	if ( ! empty( $user->errors ) ) {
+		/**
+		 * Filter here to redirect the User to a different URL than the activation page.
+		 *
+		 * @since 10.0.0
+		 *
+		 * @param string   $redirect The URL to use to redirect the user.
+		 * @param WP_Error $user     The WP Error object.
+		 */
+		$redirect = apply_filters( 'bp_members_action_activate_errored_redirect', $redirect, $user );
+
+		bp_core_add_message( $user->get_error_message(), 'error' );
+		bp_core_redirect( $redirect );
+	}
+
+	/**
+	 * Filter here to redirect the User to a different URL than the activation page.
+	 *
+	 * @since 10.0.0
+	 *
+	 * @param string $redirect The URL to use to redirect the user.
+	 */
+	$redirect = apply_filters( 'bp_members_action_activate_successed_redirect', $redirect );
+
+	bp_core_add_message( __( 'Your account is now active!', 'buddypress' ) );
+	bp_core_redirect( add_query_arg( 'activated', '1', $redirect ) );
+}
+add_action( 'bp_actions', 'bp_members_action_activate_account' );
+/**
+ * buddypress\bp-members\screens\activate.php
+ * add_action('bp_actions', array($this, '_bp_members_action_activate_account'), 10, 1);
+*/
+
+/**
+ * buddyboss-platform\bp-members\classes\class-bp-signup.php
+ * add_action('bp_core_signup_before_activate', array($this, '_bp_core_signup_before_activate'), 10, 1);
+ * just this action: do_action( 'bp_core_signup_before_activate', $signup_ids ); in public static function activate
+*/
+	public static function activate( $signup_ids = array() ) {
+		if ( empty( $signup_ids ) || ! is_array( $signup_ids ) ) {
+			return false;
+		}
+
+		$to_activate = self::get(
+			array(
+				'include' => $signup_ids,
+			)
+		);
+
+		if ( ! $signups = $to_activate['signups'] ) {
+			return false;
+		}
+
+		$result = array();
+
+		/**
+		 * Fires before activation of user accounts.
+		 *
+		 * @since BuddyPress 2.0.0
+		 *
+		 * @param array $signup_ids Array of IDs to activate.
+		 */
+		do_action( 'bp_core_signup_before_activate', $signup_ids );
+
+		foreach ( $signups as $signup ) {
+
+			$user = bp_core_activate_signup( $signup->activation_key );
+
+			if ( ! empty( $user->errors ) ) {
+
+				$user_id = username_exists( $signup->user_login );
+
+				if ( 2 !== self::check_user_status( $user_id ) ) {
+					$user_id = false;
+				}
+
+				if ( empty( $user_id ) ) {
+
+					// Status is not 2, so user's account has been activated.
+					$result['errors'][ $signup->signup_id ] = array( $signup->user_login, esc_html__( 'the sign-up has already been activated.', 'buddyboss' ) );
+
+					// Repair signups table.
+					self::validate( $signup->activation_key );
+
+					// We have a user id, account is not active, let's delete it.
+				} else {
+					$result['errors'][ $signup->signup_id ] = array( $signup->user_login, $user->get_error_message() );
+				}
+			} else {
+				$result['activated'][] = $user;
+			}
+		}
+
+		/**
+		 * Fires after activation of user accounts.
+		 *
+		 * @since BuddyPress 2.0.0
+		 *
+		 * @param array $signup_ids Array of IDs activated activate.
+		 * @param array $result     Array of data for activated accounts.
+		 */
+		do_action( 'bp_core_signup_after_activate', $signup_ids, $result );
+
+		/**
+		 * Filters the result of the metadata after user activation.
+		 *
+		 * @since BuddyPress 2.0.0
+		 *
+		 * @param array $result Updated metadata related to user activation.
+		 */
+		return apply_filters( 'bp_core_signup_activate', $result );
+	}
+/**
+ * buddyboss-platform\bp-members\classes\class-bp-signup.php
+ * add_action('bp_core_signup_before_activate', array($this, '_bp_core_signup_before_activate'), 10, 1);
+ * just this action: do_action( 'bp_core_signup_before_activate', $signup_ids ); in public static function activate
+*/
+
+
+//////////// mu
+
+/**
+ * wp/wp-includes/ms-functions.php
+ * _wpmu_activate_signup
+*/
+function wpmu_activate_signup(
+	#[\SensitiveParameter]
+	$key
+) {
+	global $wpdb;
+
+	$signup = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $wpdb->signups WHERE activation_key = %s", $key ) );
+
+	if ( empty( $signup ) ) {
+		return new WP_Error( 'invalid_key', __( 'Invalid activation key.' ) );
+	}
+
+	if ( $signup->active ) {
+		if ( empty( $signup->domain ) ) {
+			return new WP_Error( 'already_active', __( 'The user is already active.' ), $signup );
+		} else {
+			return new WP_Error( 'already_active', __( 'The site is already active.' ), $signup );
+		}
+	}
+
+	$meta     = maybe_unserialize( $signup->meta );
+	$password = wp_generate_password( 12, false );
+
+	$user_id = username_exists( $signup->user_login );
+
+	if ( ! $user_id ) {
+		$user_id = wpmu_create_user( $signup->user_login, $password, $signup->user_email );
+	} else {
+		$user_already_exists = true;
+	}
+
+	if ( ! $user_id ) {
+		return new WP_Error( 'create_user', __( 'Could not create user' ), $signup );
+	}
+
+	$now = current_time( 'mysql', true );
+
+	if ( empty( $signup->domain ) ) {
+		$wpdb->update(
+			$wpdb->signups,
+			array(
+				'active'    => 1,
+				'activated' => $now,
+			),
+			array( 'activation_key' => $key )
+		);
+
+		if ( isset( $user_already_exists ) ) {
+			return new WP_Error( 'user_already_exists', __( 'That username is already activated.' ), $signup );
+		}
+
+		/**
+		 * Fires immediately after a new user is activated.
+		 *
+		 * @since MU (3.0.0)
+		 *
+		 * @param int    $user_id  User ID.
+		 * @param string $password User password.
+		 * @param array  $meta     Signup meta data.
+		 */
+		do_action( 'wpmu_activate_user', $user_id, $password, $meta );
+
+		return array(
+			'user_id'  => $user_id,
+			'password' => $password,
+			'meta'     => $meta,
+		);
+	}
+
+	$blog_id = wpmu_create_blog( $signup->domain, $signup->path, $signup->title, $user_id, $meta, get_current_network_id() );
+
+	// TODO: What to do if we create a user but cannot create a blog?
+	if ( is_wp_error( $blog_id ) ) {
+		/*
+		 * If blog is taken, that means a previous attempt to activate this blog
+		 * failed in between creating the blog and setting the activation flag.
+		 * Let's just set the active flag and instruct the user to reset their password.
+		 */
+		if ( 'blog_taken' === $blog_id->get_error_code() ) {
+			$blog_id->add_data( $signup );
+			$wpdb->update(
+				$wpdb->signups,
+				array(
+					'active'    => 1,
+					'activated' => $now,
+				),
+				array( 'activation_key' => $key )
+			);
+		}
+		return $blog_id;
+	}
+
+	$wpdb->update(
+		$wpdb->signups,
+		array(
+			'active'    => 1,
+			'activated' => $now,
+		),
+		array( 'activation_key' => $key )
+	);
+
+	/**
+	 * Fires immediately after a site is activated.
+	 *
+	 * @since MU (3.0.0)
+	 *
+	 * @param int    $blog_id       Blog ID.
+	 * @param int    $user_id       User ID.
+	 * @param string $password      User password.
+	 * @param string $signup_title  Site title.
+	 * @param array  $meta          Signup meta data. By default, contains the requested privacy setting and lang_id.
+	 */
+	do_action( 'wpmu_activate_blog', $blog_id, $user_id, $password, $signup->title, $meta );
+
+	return array(
+		'blog_id'  => $blog_id,
+		'user_id'  => $user_id,
+		'password' => $password,
+		'title'    => $signup->title,
+		'meta'     => $meta,
+	);
+}
+/**
+ * wp/wp-includes/ms-functions.php
+ * _wpmu_activate_signup
+*/
+
+/**
+ * wp/wp-activate.php
+ * the content (modified) of this file wp-activate.php is in:
+ * function _get_header_activation( $name )
+*/
+define( 'WP_INSTALLING', true );
+
+/** Sets up the WordPress Environment. */
+require __DIR__ . '/wp-load.php';
+
+require __DIR__ . '/wp-blog-header.php';
+
+if ( ! is_multisite() ) {
+	wp_redirect( wp_registration_url() );
+	die();
+}
+
+$valid_error_codes = array( 'already_active', 'blog_taken' );
+
+list( $activate_path ) = explode( '?', wp_unslash( $_SERVER['REQUEST_URI'] ) );
+$activate_cookie       = 'wp-activate-' . COOKIEHASH;
+
+$key    = '';
+$result = null;
+
+if ( isset( $_GET['key'] ) && isset( $_POST['key'] ) && $_GET['key'] !== $_POST['key'] ) {
+	wp_die( __( 'A key value mismatch has been detected. Please follow the link provided in your activation email.' ), __( 'An error occurred during the activation' ), 400 );
+} elseif ( ! empty( $_GET['key'] ) ) {
+	$key = sanitize_text_field( $_GET['key'] );
+} elseif ( ! empty( $_POST['key'] ) ) {
+	$key = sanitize_text_field( $_POST['key'] );
+}
+
+if ( $key ) {
+	$redirect_url = remove_query_arg( 'key' );
+
+	if ( remove_query_arg( false ) !== $redirect_url ) {
+		setcookie( $activate_cookie, $key, 0, $activate_path, COOKIE_DOMAIN, is_ssl(), true );
+		wp_safe_redirect( $redirect_url );
+		exit;
+	} else {
+		$result = wpmu_activate_signup( $key );
+	}
+}
+
+if ( null === $result && isset( $_COOKIE[ $activate_cookie ] ) ) {
+	$key    = $_COOKIE[ $activate_cookie ];
+	$result = wpmu_activate_signup( $key );
+	setcookie( $activate_cookie, ' ', time() - YEAR_IN_SECONDS, $activate_path, COOKIE_DOMAIN, is_ssl(), true );
+}
+
+if ( null === $result || ( is_wp_error( $result ) && 'invalid_key' === $result->get_error_code() ) ) {
+	status_header( 404 );
+} elseif ( is_wp_error( $result ) ) {
+	$error_code = $result->get_error_code();
+
+	if ( ! in_array( $error_code, $valid_error_codes, true ) ) {
+		status_header( 400 );
+	}
+}
+
+nocache_headers();
+
+// Fix for page title.
+$wp_query->is_404 = false;
+
+/**
+ * Fires before the Site Activation page is loaded.
+ *
+ * @since 3.0.0
+ */
+do_action( 'activate_header' );
+
+/**
+ * Adds an action hook specific to this page.
+ *
+ * Fires on {@see 'wp_head'}.
+ *
+ * @since MU (3.0.0)
+ */
+function do_activate_header() {
+	/**
+	 * Fires within the `<head>` section of the Site Activation page.
+	 *
+	 * Fires on the {@see 'wp_head'} action.
+	 *
+	 * @since 3.0.0
+	 */
+	do_action( 'activate_wp_head' );
+}
+add_action( 'wp_head', 'do_activate_header' );
+
+/**
+ * Loads styles specific to this page.
+ *
+ * @since MU (3.0.0)
+ */
+function wpmu_activate_stylesheet() {
+	?>
+	<style type="text/css">
+		.wp-activate-container { width: 90%; margin: 0 auto; }
+		.wp-activate-container form { margin-top: 2em; }
+		#submit, #key { width: 100%; font-size: 24px; box-sizing: border-box; }
+		#language { margin-top: 0.5em; }
+		.wp-activate-container .error { background: #f66; color: #333; }
+		span.h3 { padding: 0 8px; font-size: 1.3em; font-weight: 600; }
+	</style>
+	<?php
+}
+add_action( 'wp_head', 'wpmu_activate_stylesheet' );
+add_action( 'wp_head', 'wp_strict_cross_origin_referrer' );
+add_filter( 'wp_robots', 'wp_robots_sensitive_page' );
+
+get_header( 'wp-activate' );
+
+$blog_details = get_site();
+?>
+
+<div id="signup-content" class="widecolumn">
+	<div class="wp-activate-container">
+	<?php if ( ! $key ) { ?>
+
+		<h2><?php _e( 'Activation Key Required' ); ?></h2>
+		<form name="activateform" id="activateform" method="post" action="<?php echo esc_url( network_site_url( $blog_details->path . 'wp-activate.php' ) ); ?>">
+			<p>
+				<label for="key"><?php _e( 'Activation Key:' ); ?></label>
+				<br /><input type="text" name="key" id="key" value="" size="50" autofocus="autofocus" />
+			</p>
+			<p class="submit">
+				<input id="submit" type="submit" name="Submit" class="submit" value="<?php esc_attr_e( 'Activate' ); ?>" />
+			</p>
+		</form>
+
+		<?php
+	} else {
+		if ( is_wp_error( $result ) && in_array( $result->get_error_code(), $valid_error_codes, true ) ) {
+			$signup = $result->get_error_data();
+			?>
+			<h2><?php _e( 'Your account is now active!' ); ?></h2>
+			<?php
+			echo '<p class="lead-in">';
+			if ( '' === $signup->domain . $signup->path ) {
+				printf(
+					/* translators: 1: Login URL, 2: Username, 3: User email address, 4: Lost password URL. */
+					__( 'Your account has been activated. You may now <a href="%1$s">log in</a> to the site using your chosen username of &#8220;%2$s&#8221;. Please check your email inbox at %3$s for your password and login instructions. If you do not receive an email, please check your junk or spam folder. If you still do not receive an email within an hour, you can <a href="%4$s">reset your password</a>.' ),
+					esc_url( network_site_url( $blog_details->path . 'wp-login.php', 'login' ) ),
+					esc_html( $signup->user_login ),
+					esc_html( $signup->user_email ),
+					esc_url( wp_lostpassword_url() )
+				);
+			} else {
+				printf(
+					/* translators: 1: Site URL, 2: Username, 3: User email address, 4: Lost password URL. */
+					__( 'Your site at %1$s is active. You may now log in to your site using your chosen username of &#8220;%2$s&#8221;. Please check your email inbox at %3$s for your password and login instructions. If you do not receive an email, please check your junk or spam folder. If you still do not receive an email within an hour, you can <a href="%4$s">reset your password</a>.' ),
+					sprintf( '<a href="http://%1$s">%1$s</a>', esc_url( $signup->domain . $blog_details->path ) ),
+					esc_html( $signup->user_login ),
+					esc_html( $signup->user_email ),
+					esc_url( wp_lostpassword_url() )
+				);
+			}
+			echo '</p>';
+		} elseif ( null === $result || is_wp_error( $result ) ) {
+			?>
+			<h2><?php _e( 'An error occurred during the activation' ); ?></h2>
+			<?php if ( is_wp_error( $result ) ) : ?>
+				<p><?php echo esc_html( $result->get_error_message() ); ?></p>
+			<?php endif; ?>
+			<?php
+		} else {
+			$url  = isset( $result['blog_id'] ) ? esc_url( get_home_url( (int) $result['blog_id'] ) ) : '';
+			$user = get_userdata( (int) $result['user_id'] );
+			?>
+			<h2><?php _e( 'Your account is now active!' ); ?></h2>
+
+			<div id="signup-welcome">
+			<p><span class="h3"><?php _e( 'Username:' ); ?></span> <?php echo esc_html( $user->user_login ); ?></p>
+			<p><span class="h3"><?php _e( 'Password:' ); ?></span> <?php echo esc_html( $result['password'] ); ?></p>
+			</div>
+
+			<?php
+			if ( $url && network_home_url( '', 'http' ) !== $url ) :
+				switch_to_blog( (int) $result['blog_id'] );
+				$login_url = wp_login_url();
+				restore_current_blog();
+				?>
+				<p class="view">
+				<?php
+					/* translators: 1: Site URL, 2: Login URL. */
+					printf( __( 'Your account is now activated. <a href="%1$s">View your site</a> or <a href="%2$s">Log in</a>' ), esc_url( $url ), esc_url( $login_url ) );
+				?>
+				</p>
+			<?php else : ?>
+				<p class="view">
+				<?php
+					printf(
+						/* translators: 1: Login URL, 2: Network home URL. */
+						__( 'Your account is now activated. <a href="%1$s">Log in</a> or go back to the <a href="%2$s">homepage</a>.' ),
+						esc_url( network_site_url( $blog_details->path . 'wp-login.php', 'login' ) ),
+						esc_url( network_home_url( $blog_details->path ) )
+					);
+				?>
+				</p>
+				<?php
+				endif;
+		}
+	}
+	?>
+	</div>
+</div>
+<?php
+get_footer( 'wp-activate' );
+/**
+ * wp/wp-activate.php
+ * the content (modified) of this file wp-activate.php is in:
+ * function _get_header_activation( $name )
+*/
+
+
+
+//////////// mu
+
+// #######################
+			/**
+				* if the user_login to activated is invalid (the language changed after registration).
+			*/
+// #######################

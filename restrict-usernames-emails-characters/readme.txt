@@ -3,8 +3,8 @@ Contributors: Benaceur
 Tags: restrict user, author slug, registration, anti-spam, security
 Requires at least: 3.0
 Tested up to: 6.9
-Requires PHP: 5.3.19
-Stable tag: 4.1.2
+Requires PHP: 5.4
+Stable tag: 5.0
 License: GPLv2 or later
 
 Restrict the usernames, email addresses, characters and symbols or email from specific domain names or language in registration ...
@@ -79,6 +79,43 @@ https://benaceur-php.com/?p=2268
 
 == Changelog ==
 
+= 5.0 =
+* Fixed error: The absence of the "benrueeg users" table if one or more blogs exist in a multisite.
+* Fixed: author's slug when news users is activated in multisite if "Prevent the use of all Symbols and letters accented in the username" option is enabled.
+* Fixed: compatibility with buddyboss.
+* Fixed: error message in backend with multi and single site and baddypress and buddyboss.
+* Fixed: error message for nickname in buddyboss.
+* New option: "Choose the method to update the database, manually or automatically".
+* New option: "Disable/Enable errors in backend for certain capability".
+* Remove options: "The name of the user_login field in registration form" and "The name of the user_email field in registration form".
+* Remove options: "Remove the name field from the form of registration" and "Hide the entire section of the profile in the form of registration" for baddypress and baddyboss. 
+* Changing the class names.
+* New filters: "filter_benrueeg_intval_update_process","benrueeg_filter_updb_per_get_users","benrueeg_cap_can_create_users","benrueeg_cap_can_create_users_backend","benrueeg_rue_delete_signup_item_activeted"
+* Remove filters: "benrueeg_filter_class_txt_register_form".
+* New error message: 'Error: password is required' (baddyboss).
+* New error message: 'Error: Empty field' (baddypress, baddyboss).
+* New error message: 'Error: email twice' (baddyboss).
+* New error message: 'Error: email not match' (baddyboss).
+* New error message: 'Error: password twice' (baddyboss).
+* New error message: 'Error: password not match' (baddyboss).
+* New error message: 'Error: password is not strong' (baddypress).
+* New error message: 'Error: acceptance of the privacy policy is required' (baddypress).
+* New error message: 'Error: Invalid username in activation process' (baddypress, baddyboss, multi-site).
+* New error message: 'Error: Invalid username in activation process in backend (baddypress, baddyboss)'.
+* New error message: 'Error: Existing username (activation pending) message in backend' (baddypress, baddyboss, multi-site).
+* New error message: 'Error: Existing username (activation pending) message in frontend' (baddypress, baddyboss, multi-site).
+* New error message: 'Error: Existing email address (activation pending) message in backend' (baddypress, baddyboss, multi-site).
+* New error message: 'Error: Existing email address (activation pending) message in frontend' (baddypress, baddyboss, multi-site).
+* Fix: User activation will be prevented if the language used for registration before activation has been changed, and an error message will be added indicating this, in (multi-site, baddypress and baddyboss) and in frontend and backend.
+* Prevent username and email from being entered during registration if they already exist and are awaiting activation.
+* Disabling certain options for those with "create_users" capability, such as limiting the number of characters in a name, allows them to create new users without restrictions, while also adding a filter (benrueeg_cap_can_create_users) for this purpose.
+* Restrict using slashes when registering a new member.
+* Restrict using (الحركات) in arabic language when registering a new member.
+* New notes: Very important...
+* Cancellation of direct removing of login_errors hook.
+* Reset all errors messages in error messages section (due to changes made to certain error messages).
+* Replacement: this filter "wp_signup_mu_filter_BENrueeg_RUE" by "benrueeg_rue_is_wp_signup_page_mu".
+* Some general necessary modifications and corrections.
 = 4.1.2 =
 * Tested up to wordpress 6.9
 * Tested up to php 8.5

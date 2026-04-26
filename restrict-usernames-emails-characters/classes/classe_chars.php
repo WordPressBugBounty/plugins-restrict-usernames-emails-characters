@@ -1,108 +1,131 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) exit;
+
+class benrueeg_rue_plug_chars extends benrueeg_rue_plug_validation {
 	
-	if ( ! class_exists( 'ben_plug_restrict_usernames_emails_characters_CHARS' ) ) :
-	
-	class ben_plug_restrict_usernames_emails_characters_CHARS extends ben_plug_restrict_usernames_emails_characters_validation {
+	public function func__CHARS( $username, $raw_username, $strict ) {
+		global $wpdb,$pagenow;
 		
-		public function __construct() {
-			parent::__construct();
+		$dis_all_symbs = $this->options('all_symbs');
+		$lang = $this->options('lang');
+		$allow_spc_cars = $this->options('allow_spc_cars');
+		
+		if ( $this->options('varchar') != 'enabled' && empty( $allow_spc_cars ) && $lang == 'default_lang' ) {
+			return $username;
+		}
+		// $raw_username: The username prior to sanitization
+		
+		//Strip HTML Tags
+		//$username = $this->ben_wp_strip_all_tags($raw_username);
+		$username = wp_strip_all_tags($raw_username);
+		
+		if ( empty( $allow_spc_cars ) && $lang != 'all_lang' || (empty( $allow_spc_cars ) && $lang == 'all_lang' && $dis_all_symbs) ) {
+			$username = remove_accents ($username);
+			} elseif ( (! empty( $allow_spc_cars ) && $lang != 'all_lang') || (! empty( $allow_spc_cars ) && $lang == 'all_lang' && $dis_all_symbs) ) {
+			$username = $this->benrueeg_remove_accents( $username );
 		}
 		
-		public function func__CHARS( $username, $raw_username, $strict ) {
-			global $wpdb,$pagenow;
-			
-			$wp_username = $username;
-			
-			// $raw_username: The username prior to sanitization
-			$dis_all_symbs = $this->options('all_symbs');
-			
-			$lang = $this->options('lang');
-			
-			$allow_spc_cars = $this->options('allow_spc_cars');
-		    $list_chars_ = array_filter(array_unique(array_map('trim', explode(PHP_EOL, $allow_spc_cars))));
-			$list_chars = implode('\\', $list_chars_);
-			
-			//Strip HTML Tags
-			//$username = $this->ben_wp_strip_all_tags($raw_username);
-			$username = wp_strip_all_tags($raw_username);
-			
-			if ( empty($allow_spc_cars) && $lang != 'all_lang' || (empty($allow_spc_cars) && $lang == 'all_lang' && $dis_all_symbs) ) {
-			    $username = remove_accents ($username);
-			} elseif ( (! empty($allow_spc_cars) && $lang != 'all_lang') || (! empty($allow_spc_cars) && $lang == 'all_lang' && $dis_all_symbs) ) {
-			    $username = $this->benrueeg_remove_accents ($username);
-			}
-
-            //$old_username = $username;
-			
-	        // Remove percent-encoded characters.
-	        $username = preg_replace( '|%([a-fA-F0-9][a-fA-F0-9])|', '', $username );
-	        // Remove HTML entities.
-	        $username = preg_replace( '/&.+?;/', '', $username );
-	        /*
+		//$old_username = $username;
+		
+		// Remove percent-encoded characters.
+		$username = preg_replace( '|%([a-fA-F0-9][a-fA-F0-9])|', '', $username );
+		// Remove HTML entities.
+		$username = preg_replace( '/&.+?;/', '', $username );
+		/*
 			if (trim($username) == '') { // to resolve this problem: notice: function wp_object_cache::add was called incorrectly. cache key must not be an empty string.
-				$username = $old_username;
-				return $username;
+			$username = $old_username;
+			return $username;
 			}
-	        */
-			if ($strict)
-			{
-				
-				$user_name  = isset($_POST['user_login']) ? $_POST['user_login']: '';
-		        $user_id    = isset($_POST['user_id']) ? $_POST['user_id']: 0;
-				$user_id    = $user_id && current_user_can( 'edit_user', $user_id ) ? $user_id : false;
-	            $user = $wpdb->get_row( $wpdb->prepare("SELECT * FROM $wpdb->users WHERE ID = %d", $user_id) );
-				
-				if ( $user ) {
-		            $user_id    = $user->ID;
-					$user_login = $user->user_login;
-	            } else {
-		            $user_id    = false;
-					$user_login = '';
-	            }
-				
-				$username = $this->options('varchar') != 'enabled' ? $wp_username : $this->get_lang__($username);
-				
-				/*
+		*/
+		if ($strict)
+		{
+			
+			$user_name  = isset($_POST['user_login']) ? $_POST['user_login']: '';
+			$user_id    = isset($_POST['user_id']) ? $_POST['user_id']: 0;
+			$user_id    = $user_id && current_user_can( 'edit_user', $user_id ) ? $user_id : false;
+			$user = $wpdb->get_row( $wpdb->prepare("SELECT * FROM $wpdb->users WHERE ID = %d", $user_id) );
+			
+			if ( $user ) {
+				$user_id    = $user->ID;
+				$user_login = $user->user_login;
+				} else {
+				$user_id    = false;
+				$user_login = '';
+			}
+			
+			$username = $this->get_lang__($username);
+			
+			/*
 				- if user exist (updating) to prevent "Cannot create a user with an empty login name" error when this language is disabled
 				$username != $raw_username (this language "$user_login" is not selected)
 				- if update and not new user login and in 'user-edit.php' or 'profile.php' and $user_id exist and user_login containts non latin characters
-				*/
+			*/
+			/*
 				$update = isset( $_REQUEST['action'] ) && $_REQUEST['action'] == 'update' ? true : false;
 				$user_name = $user_name ? $user_name == $user_login : true;
-				$username = $update && ($username != $raw_username) && $user_id && $user_name && is_admin() && in_array($pagenow, apply_filters( 'benrueeg_rue_sanitize_user_pages', array('user-edit.php','profile.php'))) && apply_filters( 'benrueeg_rue_sanitize_user', true ) ? rawurldecode($raw_username) : $username;
-			}
-			
-			return $username;
+				$username = $update && ($username != $raw_username)  && is_admin() && in_array($pagenow, apply_filters( 'benrueeg_rue_sanitize_user_pages', array('user-edit.php','profile.php'))) && apply_filters( 'benrueeg_rue_sanitize_user', true ) ? rawurldecode($raw_username) : $username;
+			*/
 		}
 		
+		return $username;
+	}
+	/*
+		public function func__CHARS_update( $username, $raw_username, $strict ) {
+		
+		$dis_all_symbs = $this->options('all_symbs');
+		$lang = $this->options('lang');
+		$allow_spc_cars = $this->options('allow_spc_cars');
+		
+		//Strip HTML Tags
+		$username = wp_strip_all_tags($raw_username);
+		
+		if ( empty($allow_spc_cars) && $lang != 'all_lang' || (empty($allow_spc_cars) && $lang == 'all_lang' && $dis_all_symbs) ) {
+		$username = remove_accents ($username);
+		} elseif ( (! empty($allow_spc_cars) && $lang != 'all_lang') || (! empty($allow_spc_cars) && $lang == 'all_lang' && $dis_all_symbs) ) {
+		$username = $this->benrueeg_remove_accents ($username);
+		}
+		
+		// Remove percent-encoded characters.
+		$username = preg_replace( '|%([a-fA-F0-9][a-fA-F0-9])|', '', $username );
+		// Remove HTML entities.
+		$username = preg_replace( '/&.+?;/', '', $username );
+		
+		return $username;
+		}
+	*/
+	function chars_removed_from_allow_spc_cars() {
+		return array("'", '"', "\\", "<", ">","/");
+	}
+	
 	function benrueeg_wp_is_valid_utf8( $text ) {
 		if ( function_exists( 'wp_is_valid_utf8' ) ) {
 			return wp_is_valid_utf8( $text ); // new function "wp_is_valid_utf8" in wordpress 6.9
-		} else {
+			} else {
 			return seems_utf8( $text );
 		}
 	}	
+	
+	function benrueeg_remove_accents( $text, $locale = '' ) {
 		
-    function benrueeg_remove_accents( $text, $locale = '' ) {
-	if ( ! preg_match( '/[\x80-\xff]/', $text ) ) {
-		return $text;
-	}
-
-	if ( $this->benrueeg_wp_is_valid_utf8 ( $text ) ) {
-
-		/*
-		 * Unicode sequence normalization from NFD (Normalization Form Decomposed)
-		 * to NFC (Normalization Form [Pre]Composed), the encoding used in this function.
-		 */
-		if ( function_exists( 'normalizer_is_normalized' )
-			&& function_exists( 'normalizer_normalize' )
-		) {
-			if ( ! normalizer_is_normalized( $text ) ) {
-				$text = normalizer_normalize( $text );
-			}
+		if ( ! preg_match( '/[\x80-\xff]/', $text ) ) {
+			return $text;
 		}
-
-		$chars = array(
+		
+		if ( $this->benrueeg_wp_is_valid_utf8 ( $text ) ) {
+			
+			/*
+				* Unicode sequence normalization from NFD (Normalization Form Decomposed)
+				* to NFC (Normalization Form [Pre]Composed), the encoding used in this function.
+			*/
+			if ( function_exists( 'normalizer_is_normalized' )
+			&& function_exists( 'normalizer_normalize' )
+			) {
+				if ( ! normalizer_is_normalized( $text ) ) {
+					$text = normalizer_normalize( $text );
+				}
+			}
+			
+			$chars = array(
 			// Decompositions for Latin-1 Supplement.
 			'ª' => 'a',
 			'º' => 'o',
@@ -430,49 +453,49 @@
 			// Grave accent.
 			'Ǜ' => 'U',
 			'ǜ' => 'u',
-		);
-		
-		$allow_spc_cars = $this->options('allow_spc_cars');
-		$list_chars = array_filter(array_unique(array_map('trim', explode(PHP_EOL, $allow_spc_cars))));
-		$chars = $this->array_remove_keys($chars, $list_chars);
-
-		// Used for locale-specific rules.
-		if ( empty( $locale ) ) {
-			$locale = get_locale();
-		}
-
-		/*
-		 * German has various locales (de_DE, de_CH, de_AT, ...) with formal and informal variants.
-		 * There is no 3-letter locale like 'def', so checking for 'de' instead of 'de_' is safe,
-		 * since 'de' itself would be a valid locale too.
-		 */
-		if ( str_starts_with( $locale, 'de' ) ) {
-			$chars['Ä'] = 'Ae';
-			$chars['ä'] = 'ae';
-			$chars['Ö'] = 'Oe';
-			$chars['ö'] = 'oe';
-			$chars['Ü'] = 'Ue';
-			$chars['ü'] = 'ue';
-			$chars['ß'] = 'ss';
-		} elseif ( 'da_DK' === $locale ) {
-			$chars['Æ'] = 'Ae';
-			$chars['æ'] = 'ae';
-			$chars['Ø'] = 'Oe';
-			$chars['ø'] = 'oe';
-			$chars['Å'] = 'Aa';
-			$chars['å'] = 'aa';
-		} elseif ( 'ca' === $locale ) {
-			$chars['l·l'] = 'll';
-		} elseif ( 'sr_RS' === $locale || 'bs_BA' === $locale ) {
-			$chars['Đ'] = 'DJ';
-			$chars['đ'] = 'dj';
-		}
-
-		$text = strtr( $text, $chars );
-	} else {
-		$chars = array();
-		// Assume ISO-8859-1 if not UTF-8.
-		$chars['in'] = "\x80\x83\x8a\x8e\x9a\x9e"
+			);
+			
+			$allow_spc_cars = $this->options('allow_spc_cars');
+			$list_chars = array_filter(array_unique(array_map('trim', explode(PHP_EOL, $allow_spc_cars))));
+			$chars = $this->array_remove_keys($chars, $list_chars);
+			
+			// Used for locale-specific rules.
+			if ( empty( $locale ) ) {
+				$locale = get_locale();
+			}
+			
+			/*
+				* German has various locales (de_DE, de_CH, de_AT, ...) with formal and informal variants.
+				* There is no 3-letter locale like 'def', so checking for 'de' instead of 'de_' is safe,
+				* since 'de' itself would be a valid locale too.
+			*/
+			if ( str_starts_with( $locale, 'de' ) ) {
+				$chars['Ä'] = 'Ae';
+				$chars['ä'] = 'ae';
+				$chars['Ö'] = 'Oe';
+				$chars['ö'] = 'oe';
+				$chars['Ü'] = 'Ue';
+				$chars['ü'] = 'ue';
+				$chars['ß'] = 'ss';
+				} elseif ( 'da_DK' === $locale ) {
+				$chars['Æ'] = 'Ae';
+				$chars['æ'] = 'ae';
+				$chars['Ø'] = 'Oe';
+				$chars['ø'] = 'oe';
+				$chars['Å'] = 'Aa';
+				$chars['å'] = 'aa';
+				} elseif ( 'ca' === $locale ) {
+				$chars['l·l'] = 'll';
+				} elseif ( 'sr_RS' === $locale || 'bs_BA' === $locale ) {
+				$chars['Đ'] = 'DJ';
+				$chars['đ'] = 'dj';
+			}
+			
+			$text = strtr( $text, $chars );
+			} else {
+			$chars = array();
+			// Assume ISO-8859-1 if not UTF-8.
+			$chars['in'] = "\x80\x83\x8a\x8e\x9a\x9e"
 			. "\x9f\xa2\xa5\xb5\xc0\xc1\xc2"
 			. "\xc3\xc4\xc5\xc7\xc8\xc9\xca"
 			. "\xcb\xcc\xcd\xce\xcf\xd1\xd2"
@@ -482,126 +505,125 @@
 			. "\xec\xed\xee\xef\xf1\xf2\xf3"
 			. "\xf4\xf5\xf6\xf8\xf9\xfa\xfb"
 			. "\xfc\xfd\xff";
-
-		$chars['out'] = 'EfSZszYcYuAAAAAACEEEEIIIINOOOOOOUUUUYaaaaaaceeeeiiiinoooooouuuuyy';
-
-		$text                = strtr( $text, $chars['in'], $chars['out'] );
-		$double_chars        = array();
-		$double_chars['in']  = array( "\x8c", "\x9c", "\xc6", "\xd0", "\xde", "\xdf", "\xe6", "\xf0", "\xfe" );
-		$double_chars['out'] = array( 'OE', 'oe', 'AE', 'DH', 'TH', 'ss', 'ae', 'dh', 'th' );
-		$text                = str_replace( $double_chars['in'], $double_chars['out'], $text );
+			
+			$chars['out'] = 'EfSZszYcYuAAAAAACEEEEIIIINOOOOOOUUUUYaaaaaaceeeeiiiinoooooouuuuyy';
+			
+			$text                = strtr( $text, $chars['in'], $chars['out'] );
+			$double_chars        = array();
+			$double_chars['in']  = array( "\x8c", "\x9c", "\xc6", "\xd0", "\xde", "\xdf", "\xe6", "\xf0", "\xfe" );
+			$double_chars['out'] = array( 'OE', 'oe', 'AE', 'DH', 'TH', 'ss', 'ae', 'dh', 'th' );
+			$text                = str_replace( $double_chars['in'], $double_chars['out'], $text );
+		}
+		
+		return $text;
+		
 	}
-
-	return $text;
-    }
 	
 	function scriptNames() {
-	return array(
-    'Arabic',
-    'Armenian',
-    'Avestan',
-    'Balinese',
-    'Bamum',
-    'Batak',
-    'Bengali',
-    'Bopomofo',
-    'Brahmi',
-    'Braille',
-    'Buginese',
-    'Buhid',
-    'Canadian_Aboriginal',
-    'Carian',
-    'Chakma',
-    'Cham',
-    'Cherokee',
-    'Common',
-    'Coptic',
-    'Cuneiform',
-    'Cypriot',
-    'Cyrillic',
-    'Deseret',
-    'Devanagari',
-    'Egyptian_Hieroglyphs',
-    'Ethiopic',
-    'Georgian',
-    'Glagolitic',
-    'Gothic',
-    'Greek',
-    'Gujarati',
-    'Gurmukhi',
-    'Han',
-    'Hangul',
-    'Hanunoo',
-    'Hebrew',
-    'Hiragana',
-    'Imperial_Aramaic',
-    'Inherited',
-    'Inscriptional_Pahlavi',
-    'Inscriptional_Parthian',
-    'Javanese',
-    'Kaithi',
-    'Kannada',
-    'Katakana',
-    'Kayah_Li',
-    'Kharoshthi',
-    'Khmer',
-    'Lao',
-    'Latin',
-    'Lepcha',
-    'Limbu',
-    'Linear_B',
-    'Lisu',
-    'Lycian',
-    'Lydian',
-    'Malayalam',
-    'Mandaic',
-    'Meetei_Mayek',
-    'Meroitic_Cursive',
-    'Meroitic_Hieroglyphs',
-    'Miao',
-    'Mongolian',
-    'Myanmar',
-    'New_Tai_Lue',
-    'Nko',
-    'Ogham',
-    'Old_Italic',
-    'Old_Persian',
-    'Old_South_Arabian',
-    'Old_Turkic',
-    'Ol_Chiki',
-    'Oriya',
-    'Osmanya',
-    'Phags_Pa',
-    'Phoenician',
-    'Rejang',
-    'Runic',
-    'Samaritan',
-    'Saurashtra',
-    'Sharada',
-    'Shavian',
-    'Sinhala',
-    'Sora_Sompeng',
-    'Sundanese',
-    'Syloti_Nagri',
-    'Syriac',
-    'Tagalog',
-    'Tagbanwa',
-    'Tai_Le',
-    'Tai_Tham',
-    'Tai_Viet',
-    'Takri',
-    'Tamil',
-    'Telugu',
-    'Thaana',
-    'Thai',
-    'Tibetan',
-    'Tifinagh',
-    'Ugaritic',
-    'Vai',
-    'Yi'
-    );
+		return array(
+		'Arabic',
+		'Armenian',
+		'Avestan',
+		'Balinese',
+		'Bamum',
+		'Batak',
+		'Bengali',
+		'Bopomofo',
+		'Brahmi',
+		'Braille',
+		'Buginese',
+		'Buhid',
+		'Canadian_Aboriginal',
+		'Carian',
+		'Chakma',
+		'Cham',
+		'Cherokee',
+		'Common',
+		'Coptic',
+		'Cuneiform',
+		'Cypriot',
+		'Cyrillic',
+		'Deseret',
+		'Devanagari',
+		'Egyptian_Hieroglyphs',
+		'Ethiopic',
+		'Georgian',
+		'Glagolitic',
+		'Gothic',
+		'Greek',
+		'Gujarati',
+		'Gurmukhi',
+		'Han',
+		'Hangul',
+		'Hanunoo',
+		'Hebrew',
+		'Hiragana',
+		'Imperial_Aramaic',
+		'Inherited',
+		'Inscriptional_Pahlavi',
+		'Inscriptional_Parthian',
+		'Javanese',
+		'Kaithi',
+		'Kannada',
+		'Katakana',
+		'Kayah_Li',
+		'Kharoshthi',
+		'Khmer',
+		'Lao',
+		'Latin',
+		'Lepcha',
+		'Limbu',
+		'Linear_B',
+		'Lisu',
+		'Lycian',
+		'Lydian',
+		'Malayalam',
+		'Mandaic',
+		'Meetei_Mayek',
+		'Meroitic_Cursive',
+		'Meroitic_Hieroglyphs',
+		'Miao',
+		'Mongolian',
+		'Myanmar',
+		'New_Tai_Lue',
+		'Nko',
+		'Ogham',
+		'Old_Italic',
+		'Old_Persian',
+		'Old_South_Arabian',
+		'Old_Turkic',
+		'Ol_Chiki',
+		'Oriya',
+		'Osmanya',
+		'Phags_Pa',
+		'Phoenician',
+		'Rejang',
+		'Runic',
+		'Samaritan',
+		'Saurashtra',
+		'Sharada',
+		'Shavian',
+		'Sinhala',
+		'Sora_Sompeng',
+		'Sundanese',
+		'Syloti_Nagri',
+		'Syriac',
+		'Tagalog',
+		'Tagbanwa',
+		'Tai_Le',
+		'Tai_Tham',
+		'Tai_Viet',
+		'Takri',
+		'Tamil',
+		'Telugu',
+		'Thaana',
+		'Thai',
+		'Tibetan',
+		'Tifinagh',
+		'Ugaritic',
+		'Vai',
+		'Yi'
+		);
 	}
-				
-	}
-				
-	endif;
+	
+}		

@@ -334,7 +334,7 @@ h2#benSett-themes {
 
 .wrap.BENrueeg_RUE_wrap_red .inside { padding-bottom:2px; }
 
-@media only screen and (min-width: 810px) { #BENrueeg_RUE_wrap_ttext #font { font-size:15px; font-weight: bold;} .BENrueeg_RUE_wrap_red p {width:500px; font-size:14px;}  }
+@media only screen and (min-width: 810px) { #BENrueeg_RUE_wrap_ttext #font { font-size:15px; font-weight: bold;} .BENrueeg_RUE_wrap_red p {width:700px; font-size:15px;}  }
 @media only screen and (max-width: 809px) { #BENrueeg_RUE_wrap_ttext #font { font-weight: bold;} .BENrueeg_RUE_wrap_red p { font-size:17px; } }
 .BENrueeg_RUE_wrap_red p { font-family: DroidKufiRegular,Tahoma,Arial; line-height: 24px;}
 
@@ -388,7 +388,7 @@ div.wrap-BENrueeg_RUE_plugins-sect2 { float:left; width: 100%;}
 	line-height:1.5;
 }
 
-select.BENrueeg_RUE-blockSelect { background:#DDDDDD; padding:0px 4px; }
+select.BENrueeg_RUE-blockSelect { padding:0px 4px; }
 
 #BENrueeg_RUE_export-loading-div-background {font-family: DroidKufiRegular,Tahoma,Arial;padding: 15px 10px;font-size:15px;}
 
@@ -439,7 +439,6 @@ select.BENrueeg_RUE-blockSelect { background:#DDDDDD; padding:0px 4px; }
 #BENrueeg_RUE-display-istiamal {
   border-left:5px solid #AB9785;
   margin-top: 15px;
-  padding-top: 0px;
 }
 [dir=rtl] #BENrueeg_RUE-display-istiamal {border-left:none; border-right:5px solid #AB9785;}
 
@@ -457,24 +456,26 @@ select.BENrueeg_RUE-blockSelect { background:#DDDDDD; padding:0px 4px; }
   margin-top:10px;
 }
 
-@media only screen and (min-width: 548px) {
-.benrueeg_remove_all_filters {width: max-content;}	
-}
+@media only screen and (min-width: 810px) {
 .benrueeg_remove_all_filters {
+    width: 690px;
+  }
+}
+
+.benrueeg_remove_all_filters {
+  font-size: 15px;	
   border-left:4px solid #AB9785;
   margin-left:6px;
-  padding-left: 4px;
   overflow: auto;
   background: #EDE9E5;
-  padding: 5px;
+  padding: 10px;
+  text-align: left;
 }
 [dir=rtl] .benrueeg_remove_all_filters {
   border-left:none;
   border-right:4px solid #AB9785;
   direction:ltr;
   margin-right:6px;
-  text-align: right;
-  padding-right: 4px;
 }
 
 @media (min-width: 782px) {
@@ -514,4 +515,8 @@ select.BENrueeg_RUE-blockSelect { background:#DDDDDD; padding:0px 4px; }
 
 @media only screen and (min-width: 782px) {
 #disable_top_sub_2 {margin-top:47px;}
+}
+
+#BENrueeg_countdown_up_process {
+	background: #42b21a;font-family:tahoma;font-size:22px;font-weight:700;color:#fefeff;padding: 2px 6px;
 }
