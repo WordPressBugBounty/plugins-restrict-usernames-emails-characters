@@ -73,20 +73,6 @@ class benrueeg_rue_plug_nl extends benrueeg_rue_plug_settings {
 		
 	}
 	
-	function benrueeg_users_table_exists() {
-		global $wpdb;
-		
-		$table = $wpdb->get_results( $wpdb->prepare(
-		"SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = %s AND TABLE_NAME = %s ",
-		$wpdb->dbname, $this->benrueeg_users_table() ) );
-		
-		if ( ! empty( $table ) ) {
-			return true;
-		}
-		
-		return false;
-	}
-	
 	function benrueeg_users_not_exists_or_empty() {
 		
 		if ( ! $this->benrueeg_users_table_exists() ) {

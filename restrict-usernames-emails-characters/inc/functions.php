@@ -25,6 +25,30 @@ trait benrueeg_class_rue_plug_functions {
 		return "{$prefix}benrueeg_users";
 	}
 	
+	function benrueeg_table_exists( $table_name ) {
+		global $wpdb;
+		
+		$table = $wpdb->get_results( $wpdb->prepare(
+		"SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = %s AND TABLE_NAME = %s ",
+		$wpdb->dbname, $wpdb->prefix . $table_name ) );
+		
+		return $table;
+	}
+	
+	function benrueeg_users_table_exists() {
+		global $wpdb;
+		
+		$table = $wpdb->get_results( $wpdb->prepare(
+		"SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = %s AND TABLE_NAME = %s ",
+		$wpdb->dbname, $this->benrueeg_users_table() ) );
+		
+		if ( ! empty( $table ) ) {
+			return true;
+		}
+		
+		return false;
+	}
+	
 	function prefix() {
 		global $wpdb;
 		
@@ -249,6 +273,8 @@ trait benrueeg_class_rue_plug_functions {
 	function signup_username_exists( $username, $active = '' ) {
 		global $wpdb;
 		
+		if ( empty( $this->benrueeg_table_exists( 'signups' ) ) || ! $this->mu_bp() ) return;
+		
 		if ( 1 === $active ) {
 			$atv = 'AND active = 1';
 		} elseif ( 0 === $active ) {
@@ -265,6 +291,8 @@ trait benrueeg_class_rue_plug_functions {
 	
 	function signup_email_exists( $email, $active = '' ) {
 		global $wpdb, $pagenow;
+		
+		if ( empty( $this->benrueeg_table_exists( 'signups' ) ) || ! $this->mu_bp() ) return;
 		
 		$_email = $email;
 

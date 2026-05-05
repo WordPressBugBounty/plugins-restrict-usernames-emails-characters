@@ -4,7 +4,7 @@ Tags: restrict user, author slug, registration, anti-spam, security
 Requires at least: 3.0
 Tested up to: 6.9
 Requires PHP: 5.4
-Stable tag: 5.0
+Stable tag: 5.0.1
 License: GPLv2 or later
 
 Restrict the usernames, email addresses, characters and symbols or email from specific domain names or language in registration ...
@@ -79,6 +79,8 @@ https://benaceur-php.com/?p=2268
 
 == Changelog ==
 
+= 5.0.1 =
+* Fixed an error: when saving user data in backend.
 = 5.0 =
 * Fixed error: The absence of the "benrueeg users" table if one or more blogs exist in a multisite.
 * Fixed: author's slug when news users is activated in multisite if "Prevent the use of all Symbols and letters accented in the username" option is enabled.
