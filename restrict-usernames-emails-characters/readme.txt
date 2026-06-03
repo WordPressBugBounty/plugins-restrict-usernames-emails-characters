@@ -2,9 +2,9 @@
 Contributors: Benaceur 
 Tags: restrict user, author slug, registration, anti-spam, security
 Requires at least: 3.0
-Tested up to: 6.9
+Tested up to: 7.0
 Requires PHP: 5.4
-Stable tag: 5.0.1
+Stable tag: 5.0.2
 License: GPLv2 or later
 
 Restrict the usernames, email addresses, characters and symbols or email from specific domain names or language in registration ...
@@ -79,6 +79,8 @@ https://benaceur-php.com/?p=2268
 
 == Changelog ==
 
+= 5.0.2 =
+* Updated to WordPress 7.*
 = 5.0.1 =
 * Fixed an error: when saving user data in backend.
 = 5.0 =
